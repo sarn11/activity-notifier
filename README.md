@@ -1,2 +1,2 @@
-# Example
-An example greeter plugin
+# Activity Notifier
+Notifies you about your in-game activity
