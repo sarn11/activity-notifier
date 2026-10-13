@@ -15,6 +15,8 @@ description: "Task list for Activity Detection & State Signals"
 
 ## Progress & handoff (updated 2026-10-12)
 
+> **Status: complete and archived.** Every task (T001–T050) is done and validated in-game by the user, except Sailing (#18), which ships labelled beta. Moved from `specs/001-activity-detection/` to `specs/done/001-activity-detection/` on 2026-10-12. Paths inside these docs still show the original location.
+
 **Start here when resuming in a new session.**
 
 ### Done

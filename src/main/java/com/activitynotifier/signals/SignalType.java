@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Signal types and their fixed keywords. Keywords are part of the public contract with Watchdog
- * (see specs/001-activity-detection/contracts/signals.md); changing one is a breaking change.
+ * (see specs/done/001-activity-detection/contracts/signals.md); changing one is a breaking change.
  */
 @Getter
 @RequiredArgsConstructor

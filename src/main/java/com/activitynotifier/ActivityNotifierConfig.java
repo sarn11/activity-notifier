@@ -10,7 +10,7 @@ import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
 /**
- * Config keys are a permanent contract (see specs/001-activity-detection/contracts/config.md).
+ * Config keys are a permanent contract (see specs/done/001-activity-detection/contracts/config.md).
  * Never rename a keyName without a migration.
  */
 @ConfigGroup(ActivityNotifierConfig.GROUP)
