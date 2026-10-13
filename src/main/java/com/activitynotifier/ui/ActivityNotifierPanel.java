@@ -45,6 +45,8 @@ public class ActivityNotifierPanel extends PluginPanel
 	private final Map<Detector, JSpinner> delaySpinners = new EnumMap<>(Detector.class);
 	private final Map<ResourceType, JCheckBox> resourceBoxes = new EnumMap<>(ResourceType.class);
 	private final Map<ResourceType, JSpinner> thresholdSpinners = new EnumMap<>(ResourceType.class);
+	private final JCheckBox damageBox = new JCheckBox("Damage taken");
+	private final JSpinner damageMinimum = spinner(1, MAX_POINTS, 1);
 
 	/**
 	 * Set while {@link #refresh} copies config into the controls, so that doesn't write config back.
@@ -110,6 +112,8 @@ public class ActivityNotifierPanel extends PluginPanel
 				resourceBoxes.get(type).setSelected(type.isEnabled(configManager));
 				thresholdSpinners.get(type).setValue(type.threshold(configManager));
 			}
+			damageBox.setSelected(config.alertDamage());
+			damageMinimum.setValue(Math.max(1, config.damageThreshold()));
 		}
 		finally
 		{
@@ -188,6 +192,13 @@ public class ActivityNotifierPanel extends PluginPanel
 			thresholdSpinners.put(type, spinner);
 			addRow(rows, row++, box, spinner);
 		}
+
+		// cooldown and damage over time stay in the settings page
+		damageBox.setToolTipText("Send a signal when you take damage of at least the minimum");
+		damageBox.addActionListener(e -> set("alertDamage", damageBox.isSelected()));
+		damageMinimum.setToolTipText("Minimum damage of a single hit");
+		damageMinimum.addChangeListener(e -> set("damageThreshold", damageMinimum.getValue()));
+		addRow(rows, row++, damageBox, damageMinimum);
 		return rows;
 	}
 

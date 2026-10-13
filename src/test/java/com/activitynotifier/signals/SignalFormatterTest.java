@@ -138,6 +138,27 @@ public class SignalFormatterTest
 	}
 
 	@Test
+	public void damageTakenTokens()
+	{
+		// the example rows of specs/002-damage-notifier/contracts/signals.md
+		assertEquals("Activity Notifier: Damage taken - 12",
+			SignalFormatter.format(Signal.damageTaken(12, 1, 38), "{damage}"));
+		assertEquals("Activity Notifier: Damage taken - 12 damage, 38 HP left",
+			SignalFormatter.format(Signal.damageTaken(12, 1, 38), "{damage} damage, {hitpoints} HP left"));
+		assertEquals("Activity Notifier: Damage taken - 20 (minimum 15)",
+			SignalFormatter.format(Signal.damageTaken(20, 15, 50), "{damage} (minimum {threshold})"));
+		assertEquals("Activity Notifier: Damage taken",
+			SignalFormatter.format(Signal.damageTaken(7, 1, 92), ""));
+	}
+
+	@Test
+	public void damageTakenLeavesOtherTokens()
+	{
+		assertEquals("Activity Notifier: Damage taken - 5 {activity}",
+			SignalFormatter.format(Signal.damageTaken(5, 1, 10), "{damage} {activity}"));
+	}
+
+	@Test
 	public void formatsDurations()
 	{
 		assertEquals("0s", SignalFormatter.formatDuration(Duration.ZERO));

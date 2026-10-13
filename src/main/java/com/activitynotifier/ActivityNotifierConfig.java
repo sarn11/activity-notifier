@@ -10,7 +10,8 @@ import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
 /**
- * Config keys are a permanent contract (see specs/done/001-activity-detection/contracts/config.md).
+ * Config keys are a permanent contract (see specs/done/001-activity-detection/contracts/config.md and
+ * specs/002-damage-notifier/contracts/config.md).
  * Never rename a keyName without a migration.
  */
 @ConfigGroup(ActivityNotifierConfig.GROUP)
@@ -63,6 +64,14 @@ public interface ActivityNotifierConfig extends Config
 		closedByDefault = true
 	)
 	String resourcesSection = "resources";
+
+	@ConfigSection(
+		name = "Damage taken",
+		description = "Alerts when you take damage",
+		position = 55,
+		closedByDefault = true
+	)
+	String damageSection = "damage";
 
 	@ConfigSection(
 		name = "Logout warnings",
@@ -250,6 +259,18 @@ public interface ActivityNotifierConfig extends Config
 	default String templateSixHour()
 	{
 		return "About to reach the six hour limit";
+	}
+
+	@ConfigItem(
+		keyName = "templateDamageTaken",
+		name = "Damage taken text",
+		description = "Detail for damage taken signals. Tokens: {damage}, {threshold}, {hitpoints}",
+		position = 11,
+		section = signalsSection
+	)
+	default String templateDamageTaken()
+	{
+		return "{damage}";
 	}
 
 	// endregion
@@ -609,6 +630,61 @@ public interface ActivityNotifierConfig extends Config
 	default int specialThreshold()
 	{
 		return 100;
+	}
+
+	// endregion
+
+	// region Damage taken
+
+	@ConfigItem(
+		keyName = "alertDamage",
+		name = "Damage taken",
+		description = "Send a signal when you take damage of at least the minimum",
+		position = 0,
+		section = damageSection
+	)
+	default boolean alertDamage()
+	{
+		return false;
+	}
+
+	@Range(min = 1)
+	@ConfigItem(
+		keyName = "damageThreshold",
+		name = "Minimum damage",
+		description = "Smallest single hit that sends a signal. Hits are never added together",
+		position = 1,
+		section = damageSection
+	)
+	default int damageThreshold()
+	{
+		return 1;
+	}
+
+	@ConfigItem(
+		keyName = "damageOverTime",
+		name = "Count damage over time",
+		description = "Count poison and venom damage",
+		position = 2,
+		section = damageSection
+	)
+	default boolean damageOverTime()
+	{
+		return true;
+	}
+
+	@Range(min = 0)
+	@Units(Units.SECONDS)
+	@ConfigItem(
+		keyName = "damageCooldown",
+		name = "Cooldown",
+		description = "Minimum time between damage signals. 0 sends one for every qualifying hit",
+		position = 3,
+		section = damageSection
+	)
+	default int damageCooldown()
+	{
+		return 0;
 	}
 
 	// endregion

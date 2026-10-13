@@ -44,6 +44,8 @@ public final class SignalFormatter
 		out = replace(out, "{resource}", signal.getResource());
 		out = replace(out, "{value}", signal.getValue());
 		out = replace(out, "{threshold}", signal.getThreshold());
+		out = replace(out, "{damage}", signal.getDamage());
+		out = replace(out, "{hitpoints}", signal.getHitpoints());
 		return out;
 	}
 

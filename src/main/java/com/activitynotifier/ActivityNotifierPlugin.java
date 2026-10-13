@@ -1,5 +1,7 @@
 package com.activitynotifier;
 
+import com.activitynotifier.damage.DamageAlertTracker;
+import com.activitynotifier.damage.DamageSettings;
 import com.activitynotifier.detection.Activity;
 import com.activitynotifier.detection.ActivityTracker;
 import com.activitynotifier.detection.AnimationCatalog;
@@ -23,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Hitsplat;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.Player;
@@ -55,7 +58,7 @@ import net.runelite.client.util.ImageUtil;
 @PluginDescriptor(
 	name = "Activity Notifier",
 	description = "Signals when you stop and resume activity, in a format the Watchdog plugin can react to",
-	tags = {"idle", "afk", "activity", "notification", "notifier", "watchdog", "skilling"}
+	tags = {"idle", "afk", "activity", "notification", "notifier", "watchdog", "skilling", "damage", "hit"}
 )
 public class ActivityNotifierPlugin extends Plugin
 {
@@ -123,6 +126,7 @@ public class ActivityNotifierPlugin extends Plugin
 	private WorldPoint lastLocation;
 
 	private Map<ResourceType, ResourceAlertTracker> resourceTrackers;
+	private DamageAlertTracker damageTracker;
 
 	private ActivityNotifierPanel panel;
 	private NavigationButton navButton;
@@ -148,6 +152,7 @@ public class ActivityNotifierPlugin extends Plugin
 		{
 			resourceTrackers.put(type, new ResourceAlertTracker(type));
 		}
+		damageTracker = new DamageAlertTracker();
 		weaponSpeed.reset();
 		xpGainTracker.reset();
 		logoutWarnings.reset();
@@ -248,6 +253,7 @@ public class ActivityNotifierPlugin extends Plugin
 				activityTracker.reset();
 				xpGainTracker.reset();
 				resourceTrackers.values().forEach(ResourceAlertTracker::reset);
+				damageTracker.discardPending();
 				break;
 		}
 	}
@@ -300,6 +306,8 @@ public class ActivityNotifierPlugin extends Plugin
 		{
 			sampleResource(type);
 		}
+
+		flushDamage(now);
 	}
 
 	@Subscribe
@@ -345,12 +353,21 @@ public class ActivityNotifierPlugin extends Plugin
 	@Subscribe
 	public void onHitsplatApplied(HitsplatApplied event)
 	{
-		// hitsplats on the local player are damage taken, which is not activity
-		if (event.getActor() == client.getLocalPlayer() || !event.getHitsplat().isMine())
+		Hitsplat hitsplat = event.getHitsplat();
+		if (event.getActor() == client.getLocalPlayer())
 		{
+			// damage taken, which is not activity. Sent on the next tick, once hitpoints include it
+			if (config.alertDamage() && ready && !paused)
+			{
+				damageTracker.record(hitsplat.getHitsplatType(), hitsplat.getAmount());
+			}
 			return;
 		}
-		observe(Detector.COMBAT, Detector.COMBAT.getDisplayName());
+
+		if (hitsplat.isMine())
+		{
+			observe(Detector.COMBAT, Detector.COMBAT.getDisplayName());
+		}
 	}
 
 	@Subscribe
@@ -455,6 +472,24 @@ public class ActivityNotifierPlugin extends Plugin
 			default:
 				throw new IllegalArgumentException(type.toString());
 		}
+	}
+
+	private void flushDamage(Instant now)
+	{
+		if (!config.alertDamage())
+		{
+			// a hit recorded just before the alert was turned off is never sent
+			damageTracker.discardPending();
+			return;
+		}
+		damageTracker.flush(damageSettings(), client.getBoostedSkillLevel(Skill.HITPOINTS), now)
+			.forEach(dispatcher::dispatch);
+	}
+
+	private DamageSettings damageSettings()
+	{
+		return new DamageSettings(config.damageThreshold(), config.damageOverTime(),
+			Duration.ofSeconds(Math.max(0, config.damageCooldown())));
 	}
 
 	private void clearResources(Map<ResourceType, ResourceAlertTracker> trackers, String detail)
@@ -569,6 +604,8 @@ public class ActivityNotifierPlugin extends Plugin
 		{
 			activityTracker.clear(CLEARED_PAUSED).ifPresent(dispatcher::dispatch);
 			clearResources(resourceTrackers, CLEARED_PAUSED);
+			// damage taken is a one-off event, so there is nothing to clear, only hits not yet sent
+			damageTracker.discardPending();
 		}
 		else
 		{

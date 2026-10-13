@@ -41,6 +41,18 @@ public class Signal
 	Duration duration;
 
 	/**
+	 * Damage of the hit that triggered a damage taken signal.
+	 */
+	@Nullable
+	String damage;
+
+	/**
+	 * The player's hitpoints when a damage taken signal is sent.
+	 */
+	@Nullable
+	String hitpoints;
+
+	/**
 	 * When set, used as the detail instead of the user's template (e.g. cleared signals).
 	 */
 	@Nullable
@@ -93,6 +105,13 @@ public class Signal
 	{
 		return builder().type(SignalType.RESOURCE_RECOVERED).keyword(keyword)
 			.resource(resource).value(value).build();
+	}
+
+	public static Signal damageTaken(int damage, int minimum, int hitpoints)
+	{
+		return builder().type(SignalType.DAMAGE_TAKEN).keyword(SignalType.DAMAGE_TAKEN.getKeyword())
+			.damage(String.valueOf(damage)).threshold(String.valueOf(minimum))
+			.hitpoints(String.valueOf(hitpoints)).build();
 	}
 
 	/**
