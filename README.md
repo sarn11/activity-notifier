@@ -6,7 +6,7 @@ Tells you when you stop doing something, and again when you start, in a format t
 - Sends **"Inactive"** when nothing you're doing has been seen for a short delay (2 s by default, plus any extra delay per detector).
 - Sends **"Active"** as soon as you resume. It comes only after an "Inactive", so the two always arrive in pairs, and a Watchdog overlay shown for "Inactive" can be removed automatically.
 - Moving the mouse or pressing keys never counts as resuming. Only an enabled detector seeing activity does.
-- Optional extras: "Still inactive" reminders, resource alerts (hitpoints, prayer, run energy, oxygen, special attack), and warnings before the idle and six-hour logouts.
+- Optional extras: "Still inactive" reminders, resource alerts (hitpoints, prayer, run energy, oxygen, special attack), a damage taken alert, and warnings before the idle and six-hour logouts.
 - A side panel gives one-click access to the settings you change most.
 
 ## Detectors
@@ -69,6 +69,24 @@ Both are off by default.
 
 The pause hotkey doesn't silence these warnings.
 
+## Damage taken alert
+
+Sends `Activity Notifier: Damage taken - 12` when something hits you. Unlike **Low hitpoints**, which
+fires once when your hitpoints cross a level, this fires for the hits themselves, at any hitpoints.
+It's off by default. Turn on **Damage taken** in the *Damage taken* settings or in the side panel.
+
+| Setting | Default | What it does |
+|---|---|---|
+| Damage taken | off | Turns the alert on |
+| Minimum damage | 1 | The smallest single hit that sends a signal. A hit equal to the minimum counts. Hits are never added together: with a minimum of 15, two hits of 8 send nothing |
+| Count damage over time | on | Whether poison and venom hits count. Other special hits (disease, burn, bleed, …) never count |
+| Cooldown | 0 s | Minimum time between damage signals. At 0, every qualifying hit sends its own signal. Hits during the cooldown are dropped, not saved up. It's real time, so hopping worlds doesn't reset it |
+
+- Misses and blocked attacks (0 hits), healing, and damage to anyone else never count.
+- The signal is sent on the game tick after the hit, so `{hitpoints}` in its text is your hitpoints *after* the hit, as shown on the orb (without Nightmare Zone absorption).
+- It's a one-off signal with no matching "recovered" signal. Nothing is sent while detection is paused with the pause hotkey.
+- Low hitpoints and Damage taken are independent. One hit can send both.
+
 ## Side panel
 
 The Activity Notifier button in the sidebar opens a panel with:
@@ -77,6 +95,7 @@ The Activity Notifier button in the sidebar opens a panel with:
 - the chat and notification channel toggles
 - every detector, each with its extra delay
 - every resource alert, each with its threshold
+- the damage taken alert, with its minimum damage (its cooldown and damage-over-time options are in the settings)
 
 Changes in either place apply immediately, and both follow RuneLite profile switches. Changes made in
 the plugin settings show up in the panel right away. RuneLite's settings page only reads values when
@@ -110,6 +129,7 @@ Activity Notifier: <Keyword> - <detail>
 | Resource recovered | see [Resource alerts](#resource-alerts) | `Activity Notifier: Hitpoints recovered - 34` |
 | Idle logout warning | `Activity Notifier: Idle logout soon` | `Activity Notifier: Idle logout soon - About to log out from idling` |
 | Six hour warning | `Activity Notifier: Six hour logout soon` | `Activity Notifier: Six hour logout soon - About to reach the six hour limit` |
+| Damage taken | `Activity Notifier: Damage taken` | `Activity Notifier: Damage taken - 12` |
 
 - **The head never changes.** You can edit the detail text under *Signals* in the plugin settings, and patterns that match the head keep working.
 - **One head never matches another signal.** For example, `Activity Notifier: Active` does not match an Inactive signal.
@@ -153,6 +173,17 @@ Turn **regex** on in the alert and use:
 
 In Watchdog actions, `$1` is the activity name, e.g. an overlay that says `Stopped $1!`.
 
+### Recipe: react when you take damage
+
+1. Turn on **Damage taken** in the plugin settings.
+2. In Watchdog, create a **Game Message** alert with message type *Spam* and message
+   `Activity Notifier: Damage taken` (glob, regex off). Add any action: a screen flash, a sound,
+   text to speech, or a popup.
+
+- On the notification channel, use a **Notification Fired** alert with the same message instead.
+- To capture the damage, turn regex on and use `^Activity Notifier: Damage taken - (\d+)`. `$1` is the damage. This works while the damage text starts with `{damage}`, as it does by default.
+- To limit repeats, use the plugin's **Cooldown** setting rather than Watchdog's debounce, so every channel and alert sees the same signals.
+
 ### Notes
 
 - Keep the debounce at `0`. Otherwise a quick inactive → active → inactive sequence can be swallowed.
@@ -165,11 +196,12 @@ In Watchdog actions, `$1` is the activity name, e.g. an overlay that says `Stopp
 | Section | Settings |
 |---|---|
 | General | Show side panel, Pause hotkey, Base delay (2000 ms) |
-| Signals | Chat messages (on), RuneLite notification (off), Inactive reminders (off) and their interval (60 s), and the detail text of every signal. Tokens: `{activity}`, `{duration}`, `{resource}`, `{value}`, `{threshold}`. An empty text sends the head only |
+| Signals | Chat messages (on), RuneLite notification (off), Inactive reminders (off) and their interval (60 s), and the detail text of every signal. Tokens: `{activity}`, `{duration}`, `{resource}`, `{value}`, `{threshold}`, and for damage taken `{damage}`, `{hitpoints}` (`{threshold}` is the minimum damage there). An empty text sends the head only |
 | General detectors | Animation, Interaction, Movement, XP gain, XP gain threshold |
 | Specific activities | One toggle per activity (all off) |
 | Extra delays | One extra delay per detector, in milliseconds |
 | Resource alerts | One toggle and one threshold per alert (all off) |
+| Damage taken | Damage taken (off), Minimum damage (1), Count damage over time (on), Cooldown (0 s) |
 | Logout warnings | Idle logout warning, Six hour logout warning (both off) |
 
 Settings are shared across your accounts. Use RuneLite profiles for per-account setups. For the
@@ -181,3 +213,4 @@ Signal heads are a public format. Any change to them will be listed here as a **
 because it breaks the Watchdog alerts that match them.
 
 - Initial release: Inactive / Active / Still inactive signals, general and specific detectors, resource alerts, logout warnings, side panel, pause hotkey.
+- Added the **Damage taken** signal (`Activity Notifier: Damage taken`), with a minimum damage, a cooldown and an option to ignore poison and venom. This adds a new head and changes no existing one.

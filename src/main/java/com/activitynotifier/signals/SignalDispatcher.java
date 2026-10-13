@@ -81,6 +81,8 @@ public class SignalDispatcher
 				return config.templateIdleLogout();
 			case SIX_HOUR:
 				return config.templateSixHour();
+			case DAMAGE_TAKEN:
+				return config.templateDamageTaken();
 			default:
 				return "";
 		}
