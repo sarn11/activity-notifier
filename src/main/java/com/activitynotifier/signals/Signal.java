@@ -72,4 +72,35 @@ public class Signal
 		return builder().type(SignalType.ACTIVE).keyword(SignalType.ACTIVE.getKeyword())
 			.fixedDetail(detail).build();
 	}
+
+	public static Signal idleLogout()
+	{
+		return builder().type(SignalType.IDLE_LOGOUT).keyword(SignalType.IDLE_LOGOUT.getKeyword()).build();
+	}
+
+	public static Signal sixHour()
+	{
+		return builder().type(SignalType.SIX_HOUR).keyword(SignalType.SIX_HOUR.getKeyword()).build();
+	}
+
+	public static Signal resourceAlert(String keyword, String resource, String value, String threshold)
+	{
+		return builder().type(SignalType.RESOURCE_ALERT).keyword(keyword)
+			.resource(resource).value(value).threshold(threshold).build();
+	}
+
+	public static Signal resourceRecovered(String keyword, String resource, String value)
+	{
+		return builder().type(SignalType.RESOURCE_RECOVERED).keyword(keyword)
+			.resource(resource).value(value).build();
+	}
+
+	/**
+	 * A recovered signal sent to clear an outstanding resource alert, e.g. when the alert is turned off.
+	 */
+	public static Signal resourceCleared(String keyword, String resource, String detail)
+	{
+		return builder().type(SignalType.RESOURCE_RECOVERED).keyword(keyword)
+			.resource(resource).fixedDetail(detail).build();
+	}
 }

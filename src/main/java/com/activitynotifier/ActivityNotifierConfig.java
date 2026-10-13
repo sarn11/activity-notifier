@@ -42,7 +42,7 @@ public interface ActivityNotifierConfig extends Config
 	String generalDetectorsSection = "generalDetectors";
 
 	@ConfigSection(
-		name = "Specific activities (not implemented yet)",
+		name = "Specific activities",
 		description = "Individually watched activities",
 		position = 30
 	)
@@ -57,7 +57,7 @@ public interface ActivityNotifierConfig extends Config
 	String delaysSection = "delays";
 
 	@ConfigSection(
-		name = "Resource alerts (not implemented yet)",
+		name = "Resource alerts",
 		description = "Alerts when a resource crosses a threshold, with a matching recovered signal",
 		position = 50,
 		closedByDefault = true
@@ -65,7 +65,7 @@ public interface ActivityNotifierConfig extends Config
 	String resourcesSection = "resources";
 
 	@ConfigSection(
-		name = "Logout warnings (not implemented yet)",
+		name = "Logout warnings",
 		description = "Warnings before you are logged out",
 		position = 60,
 		closedByDefault = true
@@ -78,8 +78,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "showSidePanel",
-		name = "[WIP] Show side panel",
-		description = "Not implemented yet. Show the Activity Notifier button in the sidebar",
+		name = "Show side panel",
+		description = "Show the Activity Notifier button in the sidebar",
 		position = 0,
 		section = generalSection
 	)
@@ -121,7 +121,7 @@ public interface ActivityNotifierConfig extends Config
 	@ConfigItem(
 		keyName = "chatSignals",
 		name = "Chat messages",
-		description = "Send signals as game messages in the chat box (Watchdog: Game Message alert)",
+		description = "Send signals as filtered game messages in the chat box, hidden when the Game chat filter is set to Filtered (Watchdog: Game Message alert, message type Spam or Any)",
 		position = 0,
 		section = signalsSection
 	)
@@ -206,8 +206,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "templateResourceAlert",
-		name = "[WIP] Resource alert text",
-		description = "Not implemented yet. Detail for resource alerts. Tokens: {resource}, {value}, {threshold}",
+		name = "Resource alert text",
+		description = "Detail for resource alerts. Tokens: {resource}, {value}, {threshold}",
 		position = 7,
 		section = signalsSection
 	)
@@ -218,8 +218,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "templateResourceRecovered",
-		name = "[WIP] Resource recovered text",
-		description = "Not implemented yet. Detail for resource recovered signals. Tokens: {resource}, {value}",
+		name = "Resource recovered text",
+		description = "Detail for resource recovered signals. Tokens: {resource}, {value}",
 		position = 8,
 		section = signalsSection
 	)
@@ -230,8 +230,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "templateIdleLogout",
-		name = "[WIP] Idle logout text",
-		description = "Not implemented yet. Detail for the idle logout warning",
+		name = "Idle logout text",
+		description = "Detail for the idle logout warning",
 		position = 9,
 		section = signalsSection
 	)
@@ -242,8 +242,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "templateSixHour",
-		name = "[WIP] Six hour logout text",
-		description = "Not implemented yet. Detail for the six hour logout warning",
+		name = "Six hour logout text",
+		description = "Detail for the six hour logout warning",
 		position = 10,
 		section = signalsSection
 	)
@@ -282,8 +282,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "detectMovement",
-		name = "[WIP] Movement",
-		description = "Not implemented yet. Walking and running count as activity",
+		name = "Movement",
+		description = "Walking and running count as activity",
 		position = 2,
 		section = generalDetectorsSection
 	)
@@ -294,8 +294,8 @@ public interface ActivityNotifierConfig extends Config
 
 	@ConfigItem(
 		keyName = "detectXpGain",
-		name = "[WIP] XP gain",
-		description = "Not implemented yet. Gaining XP counts as activity",
+		name = "XP gain",
+		description = "Gaining XP counts as activity",
 		position = 3,
 		section = generalDetectorsSection
 	)
@@ -307,8 +307,8 @@ public interface ActivityNotifierConfig extends Config
 	@Range(min = 1)
 	@ConfigItem(
 		keyName = "xpThreshold",
-		name = "[WIP] XP gain threshold",
-		description = "Not implemented yet. Minimum XP in a single drop for the XP gain detector to count it",
+		name = "XP gain threshold",
+		description = "Minimum XP in a single drop for the XP gain detector to count it",
 		position = 4,
 		section = generalDetectorsSection
 	)
@@ -375,7 +375,7 @@ public interface ActivityNotifierConfig extends Config
 		return false;
 	}
 
-	@ConfigItem(keyName = "detectSailing", name = "Sailing", description = "Watch Sailing, including steering a ship", position = 9, section = specificActivitiesSection)
+	@ConfigItem(keyName = "detectSailing", name = "Sailing (beta)", description = "Beta: not fully tested yet. Watch Sailing, including steering a ship", position = 9, section = specificActivitiesSection)
 	default boolean detectSailing()
 	{
 		return false;
@@ -415,7 +415,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayMovement", name = "[WIP] Movement (grace)", description = "Not implemented yet. Grace delay after you stop walking or running", position = 2, section = delaysSection)
+	@ConfigItem(keyName = "delayMovement", name = "Movement (grace)", description = "Grace delay after you stop walking or running", position = 2, section = delaysSection)
 	default int delayMovement()
 	{
 		return 2000;
@@ -423,7 +423,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayXpGain", name = "[WIP] XP gain", description = "Not implemented yet. Extra delay for the XP gain detector", position = 3, section = delaysSection)
+	@ConfigItem(keyName = "delayXpGain", name = "XP gain", description = "Extra delay for the XP gain detector", position = 3, section = delaysSection)
 	default int delayXpGain()
 	{
 		return 3000;
@@ -431,7 +431,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayCooking", name = "[WIP] Cooking", description = "Not implemented yet. Extra delay for Cooking", position = 10, section = delaysSection)
+	@ConfigItem(keyName = "delayCooking", name = "Cooking", description = "Extra delay for Cooking", position = 10, section = delaysSection)
 	default int delayCooking()
 	{
 		return 0;
@@ -439,7 +439,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayCrafting", name = "[WIP] Crafting", description = "Not implemented yet. Extra delay for Crafting", position = 11, section = delaysSection)
+	@ConfigItem(keyName = "delayCrafting", name = "Crafting", description = "Extra delay for Crafting", position = 11, section = delaysSection)
 	default int delayCrafting()
 	{
 		return 0;
@@ -447,7 +447,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayFishing", name = "[WIP] Fishing", description = "Not implemented yet. Extra delay for Fishing", position = 12, section = delaysSection)
+	@ConfigItem(keyName = "delayFishing", name = "Fishing", description = "Extra delay for Fishing", position = 12, section = delaysSection)
 	default int delayFishing()
 	{
 		return 0;
@@ -455,7 +455,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayFiremaking", name = "[WIP] Firemaking", description = "Not implemented yet. Extra delay for Firemaking", position = 13, section = delaysSection)
+	@ConfigItem(keyName = "delayFiremaking", name = "Firemaking", description = "Extra delay for Firemaking", position = 13, section = delaysSection)
 	default int delayFiremaking()
 	{
 		return 0;
@@ -463,7 +463,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayFletching", name = "[WIP] Fletching", description = "Not implemented yet. Extra delay for Fletching", position = 14, section = delaysSection)
+	@ConfigItem(keyName = "delayFletching", name = "Fletching", description = "Extra delay for Fletching", position = 14, section = delaysSection)
 	default int delayFletching()
 	{
 		return 0;
@@ -471,7 +471,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayHerblore", name = "[WIP] Herblore", description = "Not implemented yet. Extra delay for Herblore", position = 15, section = delaysSection)
+	@ConfigItem(keyName = "delayHerblore", name = "Herblore", description = "Extra delay for Herblore", position = 15, section = delaysSection)
 	default int delayHerblore()
 	{
 		return 0;
@@ -479,7 +479,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayMining", name = "[WIP] Mining", description = "Not implemented yet. Extra delay for Mining", position = 16, section = delaysSection)
+	@ConfigItem(keyName = "delayMining", name = "Mining", description = "Extra delay for Mining", position = 16, section = delaysSection)
 	default int delayMining()
 	{
 		return 0;
@@ -487,7 +487,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayWoodcutting", name = "[WIP] Woodcutting", description = "Not implemented yet. Extra delay for Woodcutting", position = 17, section = delaysSection)
+	@ConfigItem(keyName = "delayWoodcutting", name = "Woodcutting", description = "Extra delay for Woodcutting", position = 17, section = delaysSection)
 	default int delayWoodcutting()
 	{
 		return 0;
@@ -495,7 +495,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delaySmithing", name = "[WIP] Smithing", description = "Not implemented yet. Extra delay for Smithing", position = 18, section = delaysSection)
+	@ConfigItem(keyName = "delaySmithing", name = "Smithing", description = "Extra delay for Smithing", position = 18, section = delaysSection)
 	default int delaySmithing()
 	{
 		return 0;
@@ -503,7 +503,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delaySailing", name = "[WIP] Sailing", description = "Not implemented yet. Extra delay for Sailing", position = 19, section = delaysSection)
+	@ConfigItem(keyName = "delaySailing", name = "Sailing (beta)", description = "Beta: not fully tested yet. Extra delay for Sailing", position = 19, section = delaysSection)
 	default int delaySailing()
 	{
 		return 0;
@@ -511,7 +511,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayCombat", name = "[WIP] Combat", description = "Not implemented yet. Extra delay for combat, added on top of your weapon's attack interval", position = 20, section = delaysSection)
+	@ConfigItem(keyName = "delayCombat", name = "Combat", description = "Extra delay for combat, added on top of your weapon's attack interval", position = 20, section = delaysSection)
 	default int delayCombat()
 	{
 		return 0;
@@ -519,7 +519,7 @@ public interface ActivityNotifierConfig extends Config
 
 	@Range(min = 0)
 	@Units(Units.MILLISECONDS)
-	@ConfigItem(keyName = "delayMagicSkilling", name = "[WIP] Magic skilling", description = "Not implemented yet. Extra delay for magic skilling", position = 21, section = delaysSection)
+	@ConfigItem(keyName = "delayMagicSkilling", name = "Magic skilling", description = "Extra delay for magic skilling", position = 21, section = delaysSection)
 	default int delayMagicSkilling()
 	{
 		return 0;

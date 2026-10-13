@@ -1,6 +1,7 @@
 package com.activitynotifier.detection;
 
 import com.activitynotifier.ActivityNotifierConfig;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.runelite.client.config.ConfigManager;
@@ -43,6 +44,50 @@ public enum Detector
 	private final String delayKey;
 	private final boolean defaultEnabled;
 	private final int defaultDelayMs;
+
+	/**
+	 * The SPECIFIC detector that watches an {@link AnimationCatalog} activity, or null if none does.
+	 */
+	@Nullable
+	public static Detector forCatalogActivity(String activity)
+	{
+		switch (activity)
+		{
+			case AnimationCatalog.COOKING:
+				return COOKING;
+			case AnimationCatalog.CRAFTING:
+				return CRAFTING;
+			case AnimationCatalog.FISHING:
+				return FISHING;
+			case AnimationCatalog.FIREMAKING:
+				return FIREMAKING;
+			case AnimationCatalog.FLETCHING:
+				return FLETCHING;
+			case AnimationCatalog.HERBLORE:
+				return HERBLORE;
+			case AnimationCatalog.MINING:
+				return MINING;
+			case AnimationCatalog.WOODCUTTING:
+				return WOODCUTTING;
+			case AnimationCatalog.SMITHING:
+				return SMITHING;
+			case AnimationCatalog.SAILING:
+				return SAILING;
+			case AnimationCatalog.MAGIC:
+				return MAGIC_SKILLING;
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Not yet validated in-game; labelled "(beta)" in the UI. The display name is unchanged because it is
+	 * also the activity name in signals.
+	 */
+	public boolean isBeta()
+	{
+		return this == SAILING;
+	}
 
 	public boolean isEnabled(ConfigManager configManager)
 	{

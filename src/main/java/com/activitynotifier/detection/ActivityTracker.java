@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Constants;
 
 /**
  * Pure Active/Inactive state machine (data-model.md). Has no client dependency; all times are passed in.
  * Must only be used from one thread (the client thread).
  */
+@Slf4j
 public class ActivityTracker
 {
 	/**
@@ -71,6 +74,19 @@ public class ActivityTracker
 	}
 
 	/**
+	 * The effective delay for a detector: base + extra, plus the weapon attack interval for combat (FR-005).
+	 */
+	public static long effectiveDelayMs(Detector detector, long baseMs, long extraMs, int weaponIntervalTicks)
+	{
+		long delay = Math.max(0, baseMs) + Math.max(0, extraMs);
+		if (detector == Detector.COMBAT)
+		{
+			delay += (long) Math.max(0, weaponIntervalTicks) * Constants.GAME_TICK_LENGTH;
+		}
+		return delay;
+	}
+
+	/**
 	 * Records that a detector saw activity. Returns an Active signal when this resumes from Inactive.
 	 */
 	public Optional<Signal> observe(Detector detector, Activity activity, Instant now)
@@ -80,17 +96,24 @@ public class ActivityTracker
 			return Optional.empty();
 		}
 
-		lastSeen.put(detector, now);
-		lastActivity.put(detector, activity);
+		Instant previousSeen = lastSeen.put(detector, now);
+		Activity previousActivity = lastActivity.put(detector, activity);
+		if (log.isDebugEnabled() && (!activity.equals(previousActivity) || !isLive(detector, previousSeen, now)))
+		{
+			// only log starts and changes; detectors are re-observed every tick
+			log.debug("Observed {} via {}", activity.getName(), detector);
+		}
 
 		switch (state)
 		{
 			case INACTIVE:
 				Duration inactiveFor = Duration.between(inactiveSince, now);
 				enterActive();
+				log.debug("INACTIVE -> ACTIVE ({}, inactive for {})", activity.getName(), inactiveFor);
 				return Optional.of(Signal.active(activity.getName(), inactiveFor));
 			case NEUTRAL:
 				enterActive();
+				log.debug("NEUTRAL -> ACTIVE ({})", activity.getName());
 				return Optional.empty();
 			default:
 				return Optional.empty();
@@ -115,6 +138,10 @@ public class ActivityTracker
 		{
 			State before = state;
 			reset();
+			if (before != State.NEUTRAL)
+			{
+				log.debug("{} -> NEUTRAL (no detectors enabled)", before);
+			}
 			return before == State.INACTIVE
 				? Optional.of(Signal.cleared(CLEARED_DETECTION_OFF))
 				: Optional.empty();
@@ -145,13 +172,15 @@ public class ActivityTracker
 		Instant latestExpiry = null;
 		for (Map.Entry<Detector, Instant> entry : lastSeen.entrySet())
 		{
-			Instant expiry = entry.getValue().plusMillis(Math.max(0, delays.effectiveDelayMs(entry.getKey())));
+			Instant expiry = expiry(entry.getKey(), entry.getValue());
 			if (now.isBefore(expiry))
 			{
 				// still live
 				return Optional.empty();
 			}
-			if (latestExpiry == null || expiry.isAfter(latestExpiry))
+			// on a tie the later detector wins: SPECIFIC detectors come after GENERAL ones, and their name
+			// is the more specific one (FR-010a)
+			if (latestExpiry == null || !expiry.isBefore(latestExpiry))
 			{
 				latestExpiry = expiry;
 				mostRecentlyExpired = entry.getKey();
@@ -162,7 +191,18 @@ public class ActivityTracker
 		inactiveSince = now;
 		lastReminderAt = now;
 		inactiveActivity = lastActivity.get(mostRecentlyExpired).getName();
+		log.debug("ACTIVE -> INACTIVE ({} via {})", inactiveActivity, mostRecentlyExpired);
 		return Optional.of(Signal.inactive(inactiveActivity));
+	}
+
+	private Instant expiry(Detector detector, Instant seen)
+	{
+		return seen.plusMillis(Math.max(0, delays.effectiveDelayMs(detector)));
+	}
+
+	private boolean isLive(Detector detector, @Nullable Instant seen, Instant now)
+	{
+		return seen != null && now.isBefore(expiry(detector, seen));
 	}
 
 	private Optional<Signal> evaluateReminder(Instant now)
@@ -189,6 +229,10 @@ public class ActivityTracker
 	{
 		State before = state;
 		reset();
+		if (before != State.NEUTRAL)
+		{
+			log.debug("{} -> NEUTRAL ({})", before, detail);
+		}
 		return before == State.INACTIVE ? Optional.of(Signal.cleared(detail)) : Optional.empty();
 	}
 

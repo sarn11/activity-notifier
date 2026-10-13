@@ -19,27 +19,24 @@ description: "Task list for Activity Detection & State Signals"
 
 ### Done
 
-- Phases 1–5 (T001–T024): the MVP for US1, US2 and US3. `./gradlew build` is green, with 35 JUnit tests: ActivityTrackerTest 21, AnimationCatalogTest 5, SignalFormatterTest 9.
+- **Every task through T049 is built.** `./gradlew build` is green, with 63 JUnit tests: ActivityTrackerTest 28, AnimationCatalogTest 5, XpGainTrackerTest 6, ResourceAlertTrackerTest 7, SignalFormatterTest 10, LogoutWarningTrackerTest 7.
+- Phases 1–5 (MVP, US1–US3) are committed in `143fb74`. Phases 6–11 (US4–US8 + polish) are **uncommitted** on branch `001-activity-detection`. Commit only when the user asks.
 - Built files:
-  - `ActivityNotifierConfig` (every key from contracts/config.md)
+  - `ActivityNotifierConfig` (every key from contracts/config.md; no `[WIP]` labels remain)
   - `signals/` (`SignalType`, `Signal`, `SignalFormatter`, `SignalDispatcher`)
-  - `detection/` (`Detector`, `Activity`, `ActivityTracker`, `AnimationCatalog`)
+  - `detection/` (`Detector`, `Activity`, `ActivityTracker`, `AnimationCatalog`, `WeaponSpeed`, `XpGainTracker`)
+  - `resources/` (`ResourceType`, `ResourceAlertTracker`)
+  - `warnings/` (`LogoutWarningTracker`)
+  - `ui/ActivityNotifierPanel` + `panel_icon.png`
   - `ActivityNotifierPlugin`
-  - `README.md` (Watchdog recipe)
-- `ActivityTracker` already has the reminder (FR-011), `clear()` (FR-012), and the I1 rule that turning detectors off never causes Inactive. It also has `suspend`/`resume` for loading screens.
+  - `README.md` (full feature docs, Watchdog recipe, config reference, changelog)
+- `log.debug` lines cover observations (starts and changes only, not every tick), tracker state transitions, resource state transitions, weapon-speed changes and logout warnings.
 
 ### Validated in-game by the user
 
-- Interaction detector: combat works.
-- Animation detector: mining, woodcutting and herblore work.
-- Watchdog **Game Message** alerts react to the chat signals.
-- Not yet run: the full quickstart pass for #1–#5, #13, #14 and #17.
-
-### Not built yet
-
-Phases 6–11, T025 onward.
-- Every setting for unbuilt features is labelled `[WIP]` or `(not implemented yet)` in `ActivityNotifierConfig.java`; see the rules below.
-- Specific activities and resource alerts do nothing until Phase 6 and Phase 8. The user confirmed this in testing, and it is expected.
+- MVP session: interaction detector (combat), animation detector (mining, woodcutting, herblore), and Watchdog **Game Message** alerts reacting to the chat signals.
+- **Phases 6–10 (2026-10-12):** the user tested every quickstart scenario except #18 (Sailing). Sailing is shipped labelled **beta** (`Detector.isBeta()`, plus `(beta)` in the config names and the panel row). Its keys and signal name are unchanged.
+- **Side-panel sync finding:** panel edits apply immediately, but RuneLite's settings page only shows them after it is reopened. That's a core limitation: `ConfigPanel` rebuilds only on open, reset or profile switch. It is documented in the README and as a panel hint, and recorded under FR-028. Settings-screen → panel sync works live.
 
 ### Deviations from the original plan (recorded in the docs)
 
@@ -50,20 +47,22 @@ Phases 6–11, T025 onward.
    - A few "Misc" entries got specific names (Prayer, Herblore, Thieving).
    - The 16 `HUMAN_SAILING_*HELM*` IDs are kept in a separate `HELM_ANIMATIONS` set.
    - `CONFLICTS` collects any ID mapped to two activities; a test asserts it is empty.
+5. **Combat ignores hitsplats on the local player** (T029): `isMine()` is also true for damage taken.
+6. **Tie-break for the Inactive name**: SPECIFIC beats GENERAL when both expire at the same moment (T027, FR-010a).
+7. **Resource alerts**: the real-level guard applies to prayer as well as HP (as core does), and cleared recovered signals use fixed details (T037).
+8. **Six-hour timer restarts on hop/reconnect** (as core does), not only on login (T044). **Logout warnings ignore the pause hotkey.**
 
-### Notes for the next phases
+### Things to watch in in-game testing
 
-- **Debug logging:** the user wants `log.debug` lines for observations, state transitions and resource samples, so behaviour can be followed in the dev-client log (`./gradlew run` uses `--debug`). Add them as part of Phase 6 and Phase 8.
-- **Where to wire things in `ActivityNotifierPlugin`:**
-  - Specific activities (T028): extend `observeAnimation(int)`.
-  - Combat (T029): extend `observeInteraction(Actor)` and add an `onHitsplatApplied` handler.
-  - Movement (T030): add to `onGameTick`.
-  - `effectiveDelayMs(Detector)` is where `WeaponSpeed` plugs in (T027).
-  - `togglePause()` and `shutDown()` are where resource `clear()` calls go (T037).
+- **Oxygen:** `FOSSIL_UNDERWATER_OXYGEN` outside the water. If it reads 0 there, the tracker silently starts ALERTED, and entering the water sends one `Oxygen recovered`. That's harmless, but worth seeing.
+- **Movement on a ship:** what happens to `getWorldLocation()` while standing (not steering) on a moving boat.
+- **Six-hour on hop:** whether hopping really restarts the game's timer.
+
+### Notes
+
 - **Get API signatures from the real source**, using `.claude/skills/runelite-api-lookup/scripts/Get-RuneLiteSource.ps1` (RuneLite 1.13.1 = `latest.release` at the time of writing). Don't rely on memory.
 - **Watchdog reference:** `adamk33n3r/runelite-watchdog` @ `5bdceff` (research R1–R3).
-- **Commits:** none yet. All work is uncommitted on branch `001-activity-detection`. Commit only when the user asks.
-
+- **Archive:** once the user confirms in-game and the PR is ready, move this spec folder per the user's spec workflow.
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependency on incomplete tasks)
@@ -239,7 +238,7 @@ Phases 6–11, T025 onward.
   - The optional regex capture (`^Activity Notifier: Inactive - (.+)$`, where `$1` is the activity).
   - A note about Watchdog's banned areas.
 - [X] T024 [US3] Check `src/main/java/com/activitynotifier/signals/SignalDispatcher.java` against `contracts/signals.md`:
-  - Chat messages use `ChatMessageType.GAMEMESSAGE` with an empty sender name.
+  - Chat messages use `ChatMessageType.GAMEMESSAGE` with an empty sender name. *(Later changed to `ChatMessageType.SPAM`, at the user's request after in-game testing, so the Game chat filter "Filtered" hides signals. Watchdog alerts use message type Spam or Any. The pause confirmation stays `GAMEMESSAGE`.)*
   - The text has no colour tags (default game-message colour).
   - The notification text is identical to the chat text.
   - Fix any mismatch.
@@ -256,7 +255,7 @@ Phases 6–11, T025 onward.
 
 ### Tests for User Story 4
 
-- [ ] T025 [P] [US4] Extend `src/test/java/com/activitynotifier/detection/ActivityTrackerTest.java` with:
+- [X] T025 [P] [US4] Extend `src/test/java/com/activitynotifier/detection/ActivityTrackerTest.java` with:
   - The effective delay uses the per-detector extra delay.
   - COMBAT adds `weaponIntervalTicks × 600`.
   - A specific detector and a general detector observed together keep the player active until both expire.
@@ -264,21 +263,25 @@ Phases 6–11, T025 onward.
 
 ### Implementation for User Story 4
 
-- [ ] T026 [P] [US4] Create `WeaponSpeed` in `src/main/java/com/activitynotifier/detection/WeaponSpeed.java`:
+- [X] T026 [P] [US4] Create `WeaponSpeed` in `src/main/java/com/activitynotifier/detection/WeaponSpeed.java`:
   - Cache the equipped weapon's attack interval (ticks) via `ItemManager.getItemStats(id).getEquipment().getAspeed()`. Default to 4 when unknown.
   - Refresh it from `onItemContainerChanged` for `net.runelite.api.gameval.InventoryID.WORN` (weapon slot `EquipmentInventorySlot.WEAPON`).
-- [ ] T027 [US4] Extend the `DelayProvider` used by `ActivityTracker` in `src/main/java/com/activitynotifier/detection/ActivityTracker.java` to add `WeaponSpeed` ticks × 600 ms for `Detector.COMBAT` (FR-005)
-- [ ] T028 [US4] Map catalog activities to specific detectors in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T027 [US4] Extend the `DelayProvider` used by `ActivityTracker` in `src/main/java/com/activitynotifier/detection/ActivityTracker.java` to add `WeaponSpeed` ticks × 600 ms for `Detector.COMBAT` (FR-005)
+  - *Done as:* a pure static `ActivityTracker.effectiveDelayMs(detector, base, extra, weaponTicks)` (uses `Constants.GAME_TICK_LENGTH`). The plugin's `DelayProvider` calls it, so the weapon term is unit-tested.
+  - *Refinement:* when detectors expire at the same instant, the Inactive names the later one in enum order, so a SPECIFIC name (e.g. `Magic skilling`) wins over a general one (`Magic`), per FR-010a.
+- [X] T028 [US4] Map catalog activities to specific detectors in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - When an animation's catalog name matches a SPECIFIC detector (Cooking, Crafting, Fishing, Firemaking, Fletching, Herblore, Mining, Woodcutting, Smithing, Sailing, Magic→MAGIC_SKILLING) and that detector is enabled, also observe the SPECIFIC detector.
   - An animation in `AnimationCatalog.HELM_ANIMATIONS` observes **only** `Detector.SAILING` (activity `Sailing`) when it is enabled, never ANIMATION or MOVEMENT.
   - Add a lookup for this to `src/main/java/com/activitynotifier/detection/Detector.java`.
-- [ ] T029 [US4] Wire the combat detector in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T029 [US4] Wire the combat detector in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - `onHitsplatApplied` where `hitsplat.isMine()`.
   - Interaction with an attackable NPC (from T017).
   - Both observe `Detector.COMBAT` with activity `Combat` when it is enabled, and refresh `WeaponSpeed` from `onItemContainerChanged`.
-- [ ] T030 [US4] Wire the movement detector in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+  - *Refinement:* hitsplats applied **to the local player** are ignored, because `isMine()` is also true for damage taken and being hit while AFK is not activity. `WeaponSpeed` is also refreshed on the first ready tick, for when the plugin starts mid-session.
+- [X] T030 [US4] Wire the movement detector in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - In `onGameTick`, compare the local player's `WorldPoint` with the previous tick's. Any change observes `Detector.MOVEMENT` with activity `Movement` (FR-006). Ship-helm animations are not movement (A1).
   - Clear the previous point on reset.
+  - *Refinement:* the previous point is also cleared on `LOADING` and on pause/resume, so a region change across a loading screen isn't counted as walking.
 
 **Checkpoint**: `./gradlew build` passes. Quickstart #6, #7 and #9 are ready for the user.
 
@@ -292,7 +295,7 @@ Phases 6–11, T025 onward.
 
 ### Tests for User Story 5
 
-- [ ] T031 [P] [US5] Write `XpGainTrackerTest` in `src/test/java/com/activitynotifier/detection/XpGainTrackerTest.java`:
+- [X] T031 [P] [US5] Write `XpGainTrackerTest` in `src/test/java/com/activitynotifier/detection/XpGainTrackerTest.java`:
   - The first sample per skill after `seed()` is silent.
   - A delta ≥ threshold returns the skill.
   - A delta < threshold returns empty.
@@ -300,8 +303,8 @@ Phases 6–11, T025 onward.
 
 ### Implementation for User Story 5
 
-- [ ] T032 [US5] Create the pure `XpGainTracker` in `src/main/java/com/activitynotifier/detection/XpGainTracker.java`. It caches XP per `Skill` and has `seed(Map<Skill,Integer>)`, `onXp(Skill, int xp, int threshold)` returning `Optional<Skill>`, and `reset()`.
-- [ ] T033 [US5] Wire the XP detector in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T032 [US5] Create the pure `XpGainTracker` in `src/main/java/com/activitynotifier/detection/XpGainTracker.java`. It caches XP per `Skill` and has `seed(Map<Skill,Integer>)`, `onXp(Skill, int xp, int threshold)` returning `Optional<Skill>`, and `reset()`.
+- [X] T033 [US5] Wire the XP detector in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - Seed from `client.getSkillExperience(skill)` on the first `GameTick` after LOGGED_IN.
   - `onStatChanged` calls `XpGainTracker.onXp(..., config.xpThreshold())`, which observes `Detector.XP_GAIN` with the activity `skill.getName()` (FR-007, FR-010a).
   - Reset on logout or hop.
@@ -318,7 +321,7 @@ Phases 6–11, T025 onward.
 
 ### Tests for User Story 6
 
-- [ ] T034 [P] [US6] Write `ResourceAlertTrackerTest` in `src/test/java/com/activitynotifier/resources/ResourceAlertTrackerTest.java`:
+- [X] T034 [P] [US6] Write `ResourceAlertTrackerTest` in `src/test/java/com/activitynotifier/resources/ResourceAlertTrackerTest.java`:
   - The first sample is silent (UNKNOWN → NORMAL or ALERTED).
   - A LOW crossing gives one alert; fluctuating below gives none; crossing back gives one recovered.
   - HIGH direction works the same way mirrored.
@@ -326,18 +329,19 @@ Phases 6–11, T025 onward.
 
 ### Implementation for User Story 6
 
-- [ ] T035 [P] [US6] Create the `ResourceType` enum in `src/main/java/com/activitynotifier/resources/ResourceType.java`:
+- [X] T035 [P] [US6] Create the `ResourceType` enum in `src/main/java/com/activitynotifier/resources/ResourceType.java`:
   - Values: HITPOINTS, PRAYER, RUN_ENERGY_LOW, RUN_ENERGY_HIGH, OXYGEN, SPECIAL_ATTACK.
   - Fields: direction, display name, unit (points or %), enabled key, threshold key, default threshold, alert keyword and recovered keyword, exactly as in `contracts/signals.md` and `contracts/config.md`.
-- [ ] T036 [US6] Implement the pure `ResourceAlertTracker` in `src/main/java/com/activitynotifier/resources/ResourceAlertTracker.java`. It is a per-resource hysteresis state machine (UNKNOWN, NORMAL, ALERTED) with `sample(int value, int threshold)`, `clear()` and `reset()`, each returning `Optional<Signal>`, per data-model.md (FR-023–FR-025).
-- [ ] T037 [US6] Wire the resource alerts in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`. Sample each enabled resource on `GameTick` (and on `StatChanged` for HP and prayer) when `ready`, reading values as described in research R8:
+- [X] T036 [US6] Implement the pure `ResourceAlertTracker` in `src/main/java/com/activitynotifier/resources/ResourceAlertTracker.java`. It is a per-resource hysteresis state machine (UNKNOWN, NORMAL, ALERTED) with `sample(int value, int threshold)`, `clear()` and `reset()`, each returning `Optional<Signal>`, per data-model.md (FR-023–FR-025).
+- [X] T037 [US6] Wire the resource alerts in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`. Sample each enabled resource on `GameTick` (and on `StatChanged` for HP and prayer) when `ready`, reading values as described in research R8:
   - HP = boosted HP + `VarbitID.NZONE_ABSORB_POTION_EFFECTS`, skipped when `getRealSkillLevel(HITPOINTS) ≤ threshold`.
   - Prayer = boosted level.
   - Energy = `client.getEnergy() / 100`.
   - Oxygen = `getVarbitValue(VarbitID.FOSSIL_UNDERWATER_OXYGEN) / 10`.
   - Special attack = `getVarpValue(VarPlayerID.SA_ENERGY) / 10`.
   - Dispatch the results. Reset on logout or hop. Call `clear()` on shutdown or pause (extending T021 and T022). A resource toggled off while ALERTED gets a `clear()`.
-- [ ] T038 [US6] Check `SignalType` and `SignalFormatter` in `src/main/java/com/activitynotifier/signals/` for resource keywords: the head uses the `ResourceType` alert/recovered keyword, and the detail uses `templateResourceAlert`/`templateResourceRecovered`. Confirm `SignalFormatterTest` rule 2 covers all resource keywords.
+  - *Refinements:* the core guard (real level ≤ threshold → skip) is applied to **prayer** as well as hitpoints, as core Idle Notifier does. A skipped resource is treated like a turned-off one: `clear("Alert off")`, so an outstanding alert is still dismissed. Cleared recovered signals use a fixed detail (`Alert off` / `Detection paused` / `Plugin stopped`), like cleared Active signals.
+- [X] T038 [US6] Check `SignalType` and `SignalFormatter` in `src/main/java/com/activitynotifier/signals/` for resource keywords: the head uses the `ResourceType` alert/recovered keyword, and the detail uses `templateResourceAlert`/`templateResourceRecovered`. Confirm `SignalFormatterTest` rule 2 covers all resource keywords.
 
 **Checkpoint**: `./gradlew build` passes. Quickstart #10 is ready for the user.
 
@@ -351,8 +355,8 @@ Phases 6–11, T025 onward.
 
 ### Implementation for User Story 7
 
-- [ ] T039 [P] [US7] Add the nav icon `src/main/resources/com/activitynotifier/panel_icon.png`. It must be a real PNG, at most 32×32 and small in bytes (AGENTS.md resources rules).
-- [ ] T040 [US7] Implement `ActivityNotifierPanel extends PluginPanel` in `src/main/java/com/activitynotifier/ui/ActivityNotifierPanel.java`:
+- [X] T039 [P] [US7] Add the nav icon `src/main/resources/com/activitynotifier/panel_icon.png`. It must be a real PNG, at most 32×32 and small in bytes (AGENTS.md resources rules).
+- [X] T040 [US7] Implement `ActivityNotifierPanel extends PluginPanel` in `src/main/java/com/activitynotifier/ui/ActivityNotifierPanel.java`:
   - Sections: Signals (chat toggle, notification toggle), General detectors, Specific activities, Resource alerts.
   - The notification toggle writes `config.notificationSignals().withEnabled(b)` through `ConfigManager.setConfiguration`, so the user's tray, sound and focus options are kept (analysis U1).
   - Rows are generated from the `Detector` and `ResourceType` enums: a checkbox plus a delay or threshold spinner.
@@ -360,12 +364,14 @@ Phases 6–11, T025 onward.
   - `refresh()` re-reads every value.
   - All code is EDT-only and there are no `Client` calls (FR-027, FR-028).
   - Style with `ColorScheme`/`FontManager`.
-- [ ] T041 [US7] Wire the panel in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T041 [US7] Wire the panel in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - Build the `NavigationButton` with the icon (via `ImageUtil.loadImageResource`).
   - Add it in `startUp` if `config.showSidePanel()`.
   - On `ConfigChanged` for group `activitynotifier`, add or remove it when the key is `showSidePanel` (FR-029), and otherwise `SwingUtilities.invokeLater(panel::refresh)`.
   - On `ProfileChanged`, refresh the panel (FR-022).
   - Remove the button in `shutDown`.
+  - *Done as:* the icon is a 16×16, 328-byte PNG (an orange pulse line). Resource rows are labelled with the alert keyword (e.g. Run energy restored). Spinners cover 0–600000 ms in steps of 100 for delays, and 0–100 % or 0–9999 points for thresholds.
+  - *Addition (user request, after in-game testing):* a **General** section at the top with a **Base delay** spinner (key `baseDelay`, 0–600000 ms in steps of 100).
 
 **Checkpoint**: `./gradlew build` passes. Quickstart #11 and #12 are ready for the user.
 
@@ -379,22 +385,24 @@ Phases 6–11, T025 onward.
 
 ### Tests for User Story 8
 
-- [ ] T042 [P] [US8] Write `LogoutWarningTrackerTest` in `src/test/java/com/activitynotifier/warnings/LogoutWarningTrackerTest.java`:
+- [X] T042 [P] [US8] Write `LogoutWarningTrackerTest` in `src/test/java/com/activitynotifier/warnings/LogoutWarningTrackerTest.java`:
   - Idle: fires once when idle ticks ≥ timeout − buffer, and re-arms after idle ticks drop.
   - Six-hour: fires once at 340 min after login, with no fire before then.
   - `reset()` disarms both.
 
 ### Implementation for User Story 8
 
-- [ ] T043 [US8] Implement the pure `LogoutWarningTracker` in `src/main/java/com/activitynotifier/warnings/LogoutWarningTracker.java`:
+- [X] T043 [US8] Implement the pure `LogoutWarningTracker` in `src/main/java/com/activitynotifier/warnings/LogoutWarningTracker.java`:
   - `checkIdle(int idleTicks, int idleTimeoutTicks)` uses a 20 s buffer (`20_000 / Constants.CLIENT_TICK_LENGTH` ticks).
   - `checkSession(Instant now)` uses a 340 min threshold.
   - Also has `onLogin(Instant)` and `reset()`.
   - Each check returns `Optional<Signal>` (FR-017, FR-018).
-- [ ] T044 [US8] Wire the logout warnings in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T044 [US8] Wire the logout warnings in `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - Record the login time on LOGGED_IN only when the previous state was LOGGING_IN or LOGIN_SCREEN, not HOPPING.
   - On `GameTick`, when enabled, check idle using `min(client.getMouseIdleTicks(), client.getKeyboardIdleTicks())` and `client.getIdleTimeout()`, and check the session time.
   - Dispatch the results (FR-019: off by default).
+  - *Deviation:* the six-hour timer starts on LOGGED_IN after LOGGING_IN, **HOPPING** or CONNECTION_LOST (and is disarmed on LOGIN_SCREEN). This matches core Idle Notifier, which treats each new world session as restarting the game's timer; research R9 had said hops don't count. Needs in-game confirmation.
+  - *Refinement:* warnings are checked before the pause gate, so the pause hotkey doesn't silence them (they matter most while AFK). Idle warnings need idle ticks to be seen below the warning point first, so turning the option on while already idle doesn't fire at once. Core's extra in-combat condition is not ported.
 
 **Checkpoint**: `./gradlew build` passes. Quickstart #15 is ready for the user.
 
@@ -402,16 +410,16 @@ Phases 6–11, T025 onward.
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-- [ ] T045 [P] Finish `README.md`: a feature overview, each detector and default, resource alerts (including that the special-attack "restored" alert sends `Special attack used` on every spec use at the 100% default), side panel, pause hotkey, a changelog section (signal keyword changes are breaking), and a configuration reference that links to the Watchdog section
-- [ ] T046 [P] Update `runelite-plugin.properties`: the description should mention activity, idle and Watchdog; set tags such as `notification,notifier,activity,idle,afk,watchdog,skilling`. Keep `plugins=com.activitynotifier.ActivityNotifierPlugin`.
-- [ ] T047 Review the lifecycle and threading of `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java` against Constitution II/III/VI:
+- [X] T045 [P] Finish `README.md`: a feature overview, each detector and default, resource alerts (including that the special-attack "restored" alert sends `Special attack used` on every spec use at the 100% default), side panel, pause hotkey, a changelog section (signal keyword changes are breaking), and a configuration reference that links to the Watchdog section
+- [X] T046 [P] Update `runelite-plugin.properties`: the description should mention activity, idle and Watchdog; set tags such as `notification,notifier,activity,idle,afk,watchdog,skilling`. Keep `plugins=com.activitynotifier.ActivityNotifierPlugin`.
+- [X] T047 Review the lifecycle and threading of `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java` against Constitution II/III/VI:
   - Everything added in `startUp` (nav button, hotkey listener) is removed in `shutDown`.
   - No `Client` access from the EDT or AWT.
   - No per-frame work, and only `log.debug` in handlers.
   - Unused imports and fields are removed.
-- [ ] T048 Check every ID in `src/main/java/com/activitynotifier/` is a gameval constant, with no magic numbers (Constitution IV), and that no config `keyName` differs from `contracts/config.md`
-- [ ] T049 Run `./gradlew build` and confirm all tests pass
-- [ ] T050 Hand off to the user. Offer to run `./gradlew run`, point to the Jagex account login guide, and walk through every scenario in `specs/001-activity-detection/quickstart.md`. The feature is not complete until the user confirms it in-game (Constitution VII).
+- [X] T048 Check every ID in `src/main/java/com/activitynotifier/` is a gameval constant, with no magic numbers (Constitution IV), and that no config `keyName` differs from `contracts/config.md`
+- [X] T049 Run `./gradlew build` and confirm all tests pass
+- [X] T050 Hand off to the user. Offer to run `./gradlew run`, point to the Jagex account login guide, and walk through every scenario in `specs/001-activity-detection/quickstart.md`. The feature is not complete until the user confirms it in-game (Constitution VII).
 
 ---
 

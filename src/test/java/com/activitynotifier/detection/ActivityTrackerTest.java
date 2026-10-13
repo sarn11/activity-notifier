@@ -22,6 +22,7 @@ public class ActivityTrackerTest
 	private final Set<Detector> enabled = EnumSet.noneOf(Detector.class);
 	private final Map<Detector, Long> extra = new EnumMap<>(Detector.class);
 	private Duration reminderInterval;
+	private int weaponTicks;
 	private Instant now;
 	private ActivityTracker tracker;
 
@@ -32,9 +33,10 @@ public class ActivityTrackerTest
 		enabled.add(Detector.ANIMATION);
 		extra.clear();
 		reminderInterval = null;
+		weaponTicks = 4;
 		now = Instant.parse("2026-10-12T12:00:00Z");
 		tracker = new ActivityTracker(
-			d -> BASE + extra.getOrDefault(d, 0L),
+			d -> ActivityTracker.effectiveDelayMs(d, BASE, extra.getOrDefault(d, 0L), weaponTicks),
 			enabled::contains,
 			() -> reminderInterval);
 	}
@@ -303,6 +305,115 @@ public class ActivityTrackerTest
 		see(Detector.ANIMATION, "Woodcutting");
 		assertFalse(tracker.clear("Plugin stopped").isPresent());
 		assertEquals(ActivityTracker.State.NEUTRAL, tracker.getState());
+	}
+
+	// endregion
+
+	// region US4: per-activity tuning
+
+	@Test
+	public void specificDetectorUsesItsOwnExtraDelay()
+	{
+		enabled.clear();
+		enabled.add(Detector.FISHING);
+		enabled.add(Detector.WOODCUTTING);
+		extra.put(Detector.FISHING, 3000L);
+
+		see(Detector.FISHING, "Fishing");
+		advance(BASE + 2999);
+		assertFalse(tick().isPresent());
+		advance(1);
+		assertEquals("Fishing", tick().get().getActivity());
+
+		see(Detector.WOODCUTTING, "Woodcutting");
+		advance(BASE);
+		Optional<Signal> signal = tick();
+		assertTrue("woodcutting keeps the base delay", signal.isPresent());
+		assertEquals(SignalType.INACTIVE, signal.get().getType());
+	}
+
+	@Test
+	public void combatDelayAddsWeaponInterval()
+	{
+		assertEquals(BASE + 6 * 600, ActivityTracker.effectiveDelayMs(Detector.COMBAT, BASE, 0, 6));
+		assertEquals(BASE + 500 + 4 * 600, ActivityTracker.effectiveDelayMs(Detector.COMBAT, BASE, 500, 4));
+		assertEquals("only combat gets the weapon term", BASE, ActivityTracker.effectiveDelayMs(Detector.ANIMATION, BASE, 0, 6));
+	}
+
+	@Test
+	public void slowWeaponGapIsNotInactivity()
+	{
+		enabled.clear();
+		enabled.add(Detector.COMBAT);
+		weaponTicks = 7;
+
+		// a 7-tick weapon: hits land 4.2s apart, longer than the base delay alone
+		for (int i = 0; i < 10; i++)
+		{
+			see(Detector.COMBAT, "Combat");
+			advance(7 * 600);
+			assertFalse(tick().isPresent());
+		}
+
+		advance(BASE);
+		assertEquals(SignalType.INACTIVE, tick().get().getType());
+	}
+
+	@Test
+	public void specificAndGeneralStayActiveUntilBothExpire()
+	{
+		enabled.add(Detector.FISHING);
+		extra.put(Detector.FISHING, 3000L);
+		see(Detector.FISHING, "Fishing");
+		see(Detector.ANIMATION, "Fishing");
+
+		advance(BASE + 100);
+		assertFalse("fishing is still live", tick().isPresent());
+
+		advance(2900);
+		Optional<Signal> signal = tick();
+		assertTrue(signal.isPresent());
+		assertEquals("Fishing", signal.get().getActivity());
+	}
+
+	@Test
+	public void simultaneousExpiryNamesSpecificDetector()
+	{
+		enabled.add(Detector.MAGIC_SKILLING);
+		see(Detector.MAGIC_SKILLING, "Magic skilling");
+		see(Detector.ANIMATION, "Magic");
+		advance(BASE);
+		assertEquals("Magic skilling", tick().get().getActivity());
+	}
+
+	@Test
+	public void movementIgnoredWhenDisabled()
+	{
+		see(Detector.ANIMATION, "Woodcutting");
+		for (int i = 0; i < 4; i++)
+		{
+			advance(600);
+			assertFalse(see(Detector.MOVEMENT, "Movement").isPresent());
+		}
+		// movement did not extend activity: inactive at the animation's expiry
+		assertEquals(SignalType.INACTIVE, tick().get().getType());
+	}
+
+	@Test
+	public void movementKeepsActiveWhenEnabled()
+	{
+		enabled.add(Detector.MOVEMENT);
+		extra.put(Detector.MOVEMENT, 2000L);
+		see(Detector.ANIMATION, "Woodcutting");
+		for (int i = 0; i < 10; i++)
+		{
+			advance(600);
+			see(Detector.MOVEMENT, "Movement");
+			assertFalse(tick().isPresent());
+		}
+
+		advance(BASE + 2000);
+		assertEquals("Movement", tick().get().getActivity());
 	}
 
 	// endregion

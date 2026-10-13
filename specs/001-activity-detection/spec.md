@@ -372,6 +372,7 @@ six-hour session limit, using the same Watchdog-friendly signals.
   and resource alert toggles and thresholds.
 - **FR-028**: Settings changed in the side panel and in the standard config screen MUST stay in sync
   and apply immediately.
+  *Implementation note:* settings apply immediately from both places, and the panel refreshes live on config changes. RuneLite's core settings page only re-reads values when it is opened, reset or on a profile switch; it has no hook for external changes. So panel edits show there the next time it's opened. The panel shows a hint about this, and the README documents it.
 - **FR-029**: Users MUST be able to hide the side panel's button via a config option (shown by
   default); the change applies without restarting the plugin.
 
@@ -414,7 +415,7 @@ six-hour session limit, using the same Watchdog-friendly signals.
   useful alone through RuneLite notifications.
 - Inter-plugin messages are out of scope because Watchdog does not currently receive them; if Watchdog
   adds support later, a third channel can be added.
-- Watchdog matches game messages of the "Game Message" category, so chat signals use that category.
+- Watchdog matches game messages by category. Chat signals use the filtered ("Spam") category, so players can hide them with the Game chat filter. Watchdog alerts use message type "Spam" or "Any" (changed after in-game testing).
 - RuneLite only broadcasts a notification when that notification is enabled in the plugin's settings, so
   the notification channel requires the user to keep it enabled (they can still turn off the tray popup
   and sound in RuneLite's per-notification settings).

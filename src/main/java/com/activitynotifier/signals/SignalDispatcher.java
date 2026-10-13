@@ -10,8 +10,9 @@ import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 
 /**
- * Delivers signals to the enabled channels: a chat game message and/or a RuneLite notification.
- * Watchdog matches the former with a Game Message alert and the latter with a Notification Fired alert.
+ * Delivers signals to the enabled channels: a filtered chat game message and/or a RuneLite notification.
+ * Watchdog matches the former with a Game Message alert (message type Spam or Any) and the latter with a
+ * Notification Fired alert.
  */
 @Slf4j
 @Singleton
@@ -36,9 +37,11 @@ public class SignalDispatcher
 
 		if (config.chatSignals())
 		{
-			// Plain text in the default game-message colour (contracts/signals.md)
+			// SPAM is a filtered game message: hidden when the Game chat filter is "Filtered", but still
+			// posted as a ChatMessage event, so Watchdog (type Spam or Any) sees it. Plain text in the
+			// default filtered-message colour (contracts/signals.md)
 			chatMessageManager.queue(QueuedMessage.builder()
-				.type(ChatMessageType.GAMEMESSAGE)
+				.type(ChatMessageType.SPAM)
 				.runeLiteFormattedMessage(text)
 				.build());
 		}
@@ -49,7 +52,8 @@ public class SignalDispatcher
 
 	/**
 	 * Plain chat feedback that is not a signal (e.g. pause confirmation). It deliberately does not start
-	 * with the signal prefix, so Watchdog patterns for signals never match it.
+	 * with the signal prefix, so Watchdog patterns for signals never match it. Sent as a normal game
+	 * message, not filtered, because the player asked for it.
 	 */
 	public void info(String message)
 	{

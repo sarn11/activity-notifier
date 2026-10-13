@@ -87,7 +87,7 @@ A detector is **live** at time `now` when it is enabled, has been seen, and
 |---|---|---|---|
 | NEUTRAL | An observation arrives | ACTIVE | nothing (FR-008: no signal for pre-existing state) |
 | ACTIVE | An observation arrives | ACTIVE | nothing |
-| ACTIVE | Tick evaluation finds no live detectors, **and** at least one enabled detector has a `lastSeen` entry (it was seen and has since expired) | INACTIVE | **Inactive**(the activity of the most recently expired enabled detector) |
+| ACTIVE | Tick evaluation finds no live detectors, **and** at least one enabled detector has a `lastSeen` entry (it was seen and has since expired) | INACTIVE | **Inactive**(the activity of the most recently expired enabled detector; on a tie, the SPECIFIC detector's, per FR-010a) |
 | INACTIVE | An observation arrives (evaluated immediately) | ACTIVE | **Active**(activity, now − inactiveSince) |
 | INACTIVE | Tick, reminders enabled, and `now − (lastReminderAt ?: inactiveSince) ≥ interval` | INACTIVE | **Still inactive**(lastActivity, duration) |
 | ACTIVE / INACTIVE | Logout, hop or connection lost (`GameStateChanged` other than LOGGED_IN / LOADING) | NEUTRAL | nothing; state is discarded (spec edge case) |
@@ -132,7 +132,7 @@ Each tracker has a **state** of `UNKNOWN`, `NORMAL` or `ALERTED`.
 | NORMAL | LOW: value ≤ threshold. HIGH: value ≥ threshold | ALERTED | **Resource alert** |
 | ALERTED | LOW: value > threshold. HIGH: value < threshold | NORMAL | **Resource recovered** |
 | any | Logout or hop | UNKNOWN | nothing |
-| ALERTED | The alert is turned off in config, the plugin shuts down, or detection is paused | UNKNOWN | **Resource recovered** (cleared) |
+| ALERTED | The alert is turned off in config (or stops applying: real HP/prayer level ≤ threshold), the plugin shuts down, or detection is paused | UNKNOWN | **Resource recovered** (cleared; fixed detail `Alert off` / `Plugin stopped` / `Detection paused`) |
 | NORMAL / UNKNOWN | The alert is turned off in config, the plugin shuts down, or detection is paused | UNKNOWN | nothing |
 
 Clearing on turn-off, shutdown or pause mirrors FR-012, so a Watchdog effect started by the alert is
@@ -146,7 +146,7 @@ the threshold, so a Watchdog effect can be cleared once the resource is spent.
 | Tracker | Armed when | Fires when | Re-arms |
 |---|---|---|---|
 | Idle logout | enabled and `ready` | idle ticks ≥ `client.getIdleTimeout()` − 20 s | after any input (idle ticks drop) |
-| Six-hour | enabled, and a login (not a hop) was recorded | `now − loginAt ≥ 340 min` | on the next login |
+| Six-hour | enabled, and a session start (login, hop or reconnect, as core does) was recorded | `now − loginAt ≥ 340 min` | on the next session start |
 
 Neither tracker has a recovered signal (spec FR-017 and FR-018 define only one warning each).
 

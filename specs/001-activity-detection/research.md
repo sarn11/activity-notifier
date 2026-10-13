@@ -14,7 +14,7 @@ Paths below are relative to those source trees.
 ## R1. How signals reach Watchdog
 
 **Decision**: There are two independent channels, matching FR-013:
-1. **Chat channel** (on by default). The plugin queues a `ChatMessageType.GAMEMESSAGE` line via `ChatMessageManager.queue(QueuedMessage)`.
+1. **Chat channel** (on by default). The plugin queues a `ChatMessageType.GAMEMESSAGE` line via `ChatMessageManager.queue(QueuedMessage)`. *(Superseded after in-game testing: signals are now `ChatMessageType.SPAM`, so the Game chat filter "Filtered" hides them. Watchdog's `GameMessageType.SPAM` ("Filtered game messages") and `ANY` both match `SPAM`.)*
 2. **Notification channel** (off by default). The plugin calls `Notifier.notify(Notification, String)` with a `Notification`-typed config item that defaults to `Notification.OFF`.
 
 **Rationale**:
@@ -134,7 +134,7 @@ Its effective delay is the base delay + the combat extra delay + **weapon attack
 ## R9. Logout warnings
 
 - **Idle logout**: same as core. Warn when the client's idle ticks reach `client.getIdleTimeout() − 20 s`. Idle ticks are `min(getMouseIdleTicks(), getKeyboardIdleTicks())`. The warning re-arms after any input.
-- **Six-hour**: record `Instant` at `LOGGED_IN` (from a login, not a hop) and warn at 5 h 40 min (core's `SIX_HOUR_LOGOUT_WARNING_AFTER_DURATION = 340 min`). Reset on `LOGIN_SCREEN`.
+- **Six-hour** *(implementation note: changed to match core, which also restarts the timer after HOPPING and CONNECTION_LOST; see tasks T044)*: record `Instant` at `LOGGED_IN` (from a login, not a hop) and warn at 5 h 40 min (core's `SIX_HOUR_LOGOUT_WARNING_AFTER_DURATION = 340 min`). Reset on `LOGIN_SCREEN`.
 
 ## R10. Side panel and config sync
 

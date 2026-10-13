@@ -14,9 +14,9 @@ Activity Notifier: <Keyword> - <detail>
 - `Activity Notifier: <Keyword>` is the **head**. It is fixed and cannot be customised (FR-014).
 - `<detail>` is rendered from a user-editable template (FR-015). Default templates are below.
 - Delivered on two channels:
-  - **Chat** as a `GAMEMESSAGE`. In Watchdog, use a **Game Message** alert with type "Game Message" or "Any".
+  - **Chat** as a `SPAM` message (a "filtered" game message), so players can hide signals with the Game chat filter set to *Filtered*. In Watchdog, use a **Game Message** alert with message type "Spam" or "Any". Watchdog receives the `ChatMessage` event whatever the chat filter is set to. *(Changed from `GAMEMESSAGE` after in-game testing, at the user's request.)*
   - **Notification** via RuneLite's notifier. In Watchdog, use a **Notification Fired** alert.
-- Chat text uses RuneLite's default game-message colour, with no colour tags and no colour setting in v1.
+- Chat text uses RuneLite's default filtered-game-message colour, with no colour tags and no colour setting in v1.
   The notification text is identical to the chat text.
 
 ## Head rules (unit-tested)
@@ -84,8 +84,8 @@ signal patterns never match them, and they are not sent as notifications.
 
 | Goal | Watchdog alert | Pattern (glob, regex off) | Action |
 |---|---|---|---|
-| Show an overlay when inactive | Game Message alert, type Game Message | `Activity Notifier: Inactive` | Overlay: **sticky**, ID `activity-notifier-inactive` |
-| Clear it when active again | Game Message alert, type Game Message | `Activity Notifier: Active` | Dismiss Overlay, ID `activity-notifier-inactive` |
+| Show an overlay when inactive | Game Message alert, type Spam | `Activity Notifier: Inactive` | Overlay: **sticky**, ID `activity-notifier-inactive` |
+| Clear it when active again | Game Message alert, type Spam | `Activity Notifier: Active` | Dismiss Overlay, ID `activity-notifier-inactive` |
 
 - If you use the notification channel instead, use **Notification Fired** alerts with the same patterns. Don't use both alert kinds for the same signal, or the actions fire twice.
 - Keep the alert's debounce at 0, so that a quick inactive → active → inactive sequence isn't swallowed.

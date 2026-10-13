@@ -1,5 +1,6 @@
 package com.activitynotifier.signals;
 
+import com.activitynotifier.resources.ResourceType;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +13,9 @@ import org.junit.Test;
 public class SignalFormatterTest
 {
 	/**
-	 * Resource keywords from contracts/signals.md. Replaced by ResourceType once it exists (T035/T038).
+	 * Resource keywords exactly as in contracts/signals.md, to catch an accidental keyword change.
 	 */
-	private static final List<String> RESOURCE_KEYWORDS = Arrays.asList(
+	private static final List<String> CONTRACT_RESOURCE_KEYWORDS = Arrays.asList(
 		"Low hitpoints", "Hitpoints recovered",
 		"Low prayer", "Prayer recovered",
 		"Low run energy", "Run energy recovered",
@@ -22,6 +23,17 @@ public class SignalFormatterTest
 		"Low oxygen", "Oxygen recovered",
 		"Special attack restored", "Special attack used"
 	);
+
+	private static List<String> resourceKeywords()
+	{
+		List<String> keywords = new ArrayList<>();
+		for (ResourceType type : ResourceType.values())
+		{
+			keywords.add(type.getAlertKeyword());
+			keywords.add(type.getRecoveredKeyword());
+		}
+		return keywords;
+	}
 
 	private static List<String> allHeads()
 	{
@@ -33,11 +45,17 @@ public class SignalFormatterTest
 				heads.add(SignalFormatter.head(type.getKeyword()));
 			}
 		}
-		for (String keyword : RESOURCE_KEYWORDS)
+		for (String keyword : resourceKeywords())
 		{
 			heads.add(SignalFormatter.head(keyword));
 		}
 		return heads;
+	}
+
+	@Test
+	public void resourceKeywordsMatchContract()
+	{
+		assertEquals(CONTRACT_RESOURCE_KEYWORDS, resourceKeywords());
 	}
 
 	@Test
