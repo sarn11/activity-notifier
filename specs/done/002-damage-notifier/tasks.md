@@ -29,7 +29,7 @@ check that they fail before implementing.
   - `damageSettings()` clamps the cooldown with `Math.max(0, …)` as a guard. `@Range` already prevents negative values in the settings page.
   - T018 needed no new rows, because T004's `damageTakenTokens` already covers all four contract examples.
 - T026 (2026-10-13): you confirmed checks 1–7 of the hand-off list in-game, including the `{hitpoints}` check (quickstart #10), which closes research R3 / A1. Check 8's logout/hop-after-hit case isn't reachable, because the game blocks logout and hopping for about 10 s after combat (quickstart.md updated).
-- Open: T027 (archive after the PR).
+- T027 (2026-10-13): archived to `specs/done/002-damage-notifier`. The code comments and the relative links in the contracts point at the new path.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -255,7 +255,7 @@ README documents the keyword and a Watchdog recipe.
   - FR-014: the damage path never reads the attacker, `getInteracting()`, NPC IDs or location (C1).
 - [X] T025 Run `./gradlew build`, then update `specs/002-damage-notifier/spec.md` (Status) and this `tasks.md` with completion state and any deviations found during implementation
 - [X] T026 Offer to launch `./gradlew run`. Point the user at the [Using Jagex Accounts](https://github.com/runelite/runelite/wiki/Using-Jagex-Accounts) login steps, and walk them through the full `specs/002-damage-notifier/quickstart.md` table and its edge cases. Wait for their in-game confirmation (Constitution VII). The task is not done until they confirm
-- [ ] T027 After user sign-off and once the PR is ready to merge, archive with `git mv specs/002-damage-notifier specs/done/002-damage-notifier`. Then:
+- [X] T027 After user sign-off and once the PR is ready to merge, archive with `git mv specs/002-damage-notifier specs/done/002-damage-notifier`. Then:
   - Update any code comments that cite `specs/002-damage-notifier/...` paths.
   - Rewrite `.specify/feature.json` (no BOM) to `specs/done/002-damage-notifier`.
 

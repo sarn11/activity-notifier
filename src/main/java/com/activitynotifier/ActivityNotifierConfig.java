@@ -11,7 +11,7 @@ import net.runelite.client.config.Units;
 
 /**
  * Config keys are a permanent contract (see specs/done/001-activity-detection/contracts/config.md and
- * specs/002-damage-notifier/contracts/config.md).
+ * specs/done/002-damage-notifier/contracts/config.md).
  * Never rename a keyName without a migration.
  */
 @ConfigGroup(ActivityNotifierConfig.GROUP)

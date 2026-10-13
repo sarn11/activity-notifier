@@ -9,7 +9,7 @@ import lombok.Value;
 
 /**
  * Records hits on the local player and turns them into damage taken signals on the next game tick, so
- * the hitpoints in the signal already include the hit (specs/002-damage-notifier/research.md R3).
+ * the hitpoints in the signal already include the hit (specs/done/002-damage-notifier/research.md R3).
  * Each hit is judged on its own; hits are never added together (FR-004).
  */
 public class DamageAlertTracker

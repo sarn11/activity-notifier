@@ -1,7 +1,7 @@
 # Contract: Configuration Keys (additions)
 
 This extends
-[specs/done/001-activity-detection/contracts/config.md](../../done/001-activity-detection/contracts/config.md).
+[specs/done/001-activity-detection/contracts/config.md](../../001-activity-detection/contracts/config.md).
 The group is still `activitynotifier`. Every existing key is unchanged (FR-016). The keys below are new
 and **permanent** (Constitution V).
 

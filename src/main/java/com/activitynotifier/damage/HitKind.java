@@ -4,8 +4,8 @@ import net.runelite.api.HitsplatID;
 
 /**
  * What a hitsplat on the local player counts as for the damage taken alert
- * (specs/002-damage-notifier/research.md R2). gameval has no hitsplat class, so {@link HitsplatID} is the
- * constant source.
+ * (specs/done/002-damage-notifier/research.md R2). gameval has no hitsplat class, so
+ * {@link HitsplatID} is the constant source.
  */
 public enum HitKind
 {

@@ -1,7 +1,7 @@
 # Contract: Damage Taken Signal (addition to the signal contract)
 
 This extends the signal contract in
-[specs/done/001-activity-detection/contracts/signals.md](../../done/001-activity-detection/contracts/signals.md).
+[specs/done/001-activity-detection/contracts/signals.md](../../001-activity-detection/contracts/signals.md).
 Format, channels, head rules and template rules there all apply unchanged. Only the additions are listed
 here.
 

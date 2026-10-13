@@ -140,7 +140,7 @@ public class SignalFormatterTest
 	@Test
 	public void damageTakenTokens()
 	{
-		// the example rows of specs/002-damage-notifier/contracts/signals.md
+		// the example rows of specs/done/002-damage-notifier/contracts/signals.md
 		assertEquals("Activity Notifier: Damage taken - 12",
 			SignalFormatter.format(Signal.damageTaken(12, 1, 38), "{damage}"));
 		assertEquals("Activity Notifier: Damage taken - 12 damage, 38 HP left",
