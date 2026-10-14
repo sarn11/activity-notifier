@@ -333,6 +333,8 @@ public class ActivityNotifierPanel extends PluginPanel
 	{
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = row;
+		// without a right-hand control, the left one can use the full width
+		c.gridwidth = right == null ? 2 : 1;
 		c.insets = new Insets(1, 0, 1, 0);
 		c.anchor = GridBagConstraints.WEST;
 

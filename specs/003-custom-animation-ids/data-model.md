@@ -16,7 +16,7 @@ Turns the config text into a set of IDs, and tells callers how an animation coun
 | Member | Kind | Description |
 |---|---|---|
 | `parse(String text)` | static | Returns an immutable `Set<Integer>`. The rules are in research R2: split on `,`, trim, skip empty entries, keep whole numbers `>= 0`, ignore everything else. `null` gives an empty set. |
-| `countedAs(int animation, Set<Integer> custom)` | static | Returns the panel status text for an animation. In order: a ship-helm animation gives `Sailing`, a built-in one gives its catalog activity name (e.g. `Woodcutting`, `Animation`), a listed one gives `Animation (custom)`, and anything else gives `Not counted`. |
+| `countedAs(int animation, Set<Integer> custom)` | static | Returns the panel status text for an animation. In order: a ship-helm animation gives `Sailing`, a built-in one gives its catalog activity name (e.g. `Woodcutting`, `Animation`), a listed one gives `Animation`, and anything else gives `Not counted`. |
 | `ids(String text)` | instance | Returns the parsed set, re-parsing only when `text` differs from the last call (research R1). Client thread only. |
 | `lastText`, `lastIds` | instance fields | The cache. Starts as `""` and an empty set. |
 

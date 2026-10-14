@@ -94,10 +94,10 @@ public class CustomAnimationsTest
 	}
 
 	@Test
-	public void listedAnimationsCountAsCustom()
+	public void listedAnimationsCountAsAnimation()
 	{
 		assertEquals("Not counted", CustomAnimations.countedAs(5216, ImmutableSet.of()));
-		assertEquals("Animation (custom)", CustomAnimations.countedAs(5216, ImmutableSet.of(5216)));
+		assertEquals("Animation", CustomAnimations.countedAs(5216, ImmutableSet.of(5216)));
 	}
 
 	@Test

@@ -33,6 +33,10 @@ player, the side panel also shows the ID of the last animation the player played
 - Q (planning): Regular players can't open RuneLite's Developer Tools, which only work in a
   developer-mode client. How do they find animation IDs? → A: The side panel shows the ID of the
   player's last animation, read-only (User Story 4).
+- Q (after in-game testing): Should Last animation move into the settings page, next to the ID text
+  box? → A: No, keep it in the side panel. RuneLite's settings page can't show a live read-only value:
+  it would only refresh when reopened, and would write config on every change. The status for a listed
+  animation is shortened to `Counts as Animation`, because `(custom)` was cut off at panel width.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -134,7 +138,7 @@ counted. Copy it into the setting and search again: the panel now shows it as co
 2. **Given** the panel shows an ID, **When** the animation ends and the player stands still, **Then**
    the panel keeps showing the last ID rather than going blank.
 3. **Given** the panel shows an ID, **Then** it also shows how that animation counts: the built-in
-   activity name, `Animation (custom)` for a listed animation, or `Not counted`.
+   activity name, `Animation` for a listed animation, or `Not counted`.
 4. **Given** the panel shows an ID, **When** the player selects it, **Then** they can copy it.
 5. **Given** another player nearby animates, **Then** the panel does not change.
 6. **Given** detection is paused or the Animation detector is off, **When** the player animates,
@@ -201,7 +205,7 @@ counted. Copy it into the setting and search again: the panel now shows it as co
 - **FR-011**: The list MUST NOT noticeably slow the game, however often the player animates and
   however long the list is (up to a few hundred IDs).
 - **FR-012**: The side panel MUST show the ID of the last animation the player's own character
-  started, and how the plugin counts it (built-in activity name, `Animation (custom)`, or
+  started, and how the plugin counts it (built-in activity name, `Animation` for a listed one, or
   `Not counted`). It is read-only but selectable for copying. It keeps the last ID when the player stops
   animating, and shows a placeholder until the first animation of the session.
 - **FR-013**: The last-animation display MUST work whether or not detection is paused and whatever

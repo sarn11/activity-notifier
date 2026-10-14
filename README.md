@@ -42,7 +42,7 @@ yourself in **Custom animation IDs** (under *General detectors*), separated by c
 
 **Finding an ID:** open the side panel and do the action. **Last animation** shows the ID of the
 last animation you played, and whether it counts. Select the ID, copy it, and paste it into the
-setting. The line below the ID changes from `Not counted` to `Counts as Animation (custom)`.
+setting. The line below the ID changes from `Not counted` to `Counts as Animation`.
 
 ### Specific activities
 

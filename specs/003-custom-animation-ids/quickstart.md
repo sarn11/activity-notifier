@@ -30,7 +30,7 @@ way, for example an emote.
 | 2 | Same | Chop a tree | Panel shows the woodcutting ID and `Counts as Woodcutting`, within about a tick (FR-012) |
 | 3 | Same | Stop chopping and stand still | Panel keeps the woodcutting ID. It doesn't go blank or show -1 |
 | 4 | Setting empty | Search a herbiboar trail spot (or do an emote) | Panel shows its ID and `Not counted`. After the delay, `Inactive` is sent as before (SC-003) |
-| 5 | Select the ID in the panel | Copy it, paste it into **Custom animation IDs** | The panel status changes to `Counts as Animation (custom)` straight away, without animating again |
+| 5 | Select the ID in the panel | Copy it, paste it into **Custom animation IDs** | The panel status changes to `Counts as Animation` straight away, without animating again |
 | 6 | ID from #5 listed | Repeat the action | It counts as activity. If you were Inactive, you get `Active - Animation (…)`. While you repeat it within the delay, no Inactive is sent (SC-002) |
 | 7 | Same | Remove the ID from the setting, without restarting | The action no longer counts. Inactive follows after the delay (FR-005) |
 | 8 | Setting ` 5216 ,,abc, -5, <your ID> ,` | Repeat the action | It still counts. The junk entries change nothing, and there's no error (FR-006, SC-004) |

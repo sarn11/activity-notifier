@@ -48,7 +48,7 @@ status was moved to its own row, because it didn't fit next to the field at side
 |---|---|
 | Row 1, left | The label `Last animation` |
 | Row 1, right | The ID as a number, or `-` before the first animation. It is not editable, but can be selected and copied, and is the same width as the spinners |
-| Row 2 | A small grey status line: `None yet` before the first animation, then `Counts as <name>` or `Not counted`. `<name>` is a built-in activity name (e.g. `Woodcutting`, `Animation`), `Sailing` (ship-helm), or `Animation (custom)` |
+| Row 2 | A small grey status line: `None yet` before the first animation, then `Counts as <name>` or `Not counted`. `<name>` is a built-in activity name (e.g. `Woodcutting`, `Animation`), `Sailing` (ship-helm), or `Animation` for a listed one. *(Changed after in-game testing: `Animation (custom)` was cut off at panel width.)* The status line spans the panel's full width |
 | Tooltip (all three) | "The last animation you played, and whether it counts as activity. Copy the ID into Custom animation IDs to make it count" |
 
 - Only the local player's animations update it. `-1` (no animation) never replaces the shown ID.
