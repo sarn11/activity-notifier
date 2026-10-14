@@ -18,8 +18,8 @@ only fix is a new plugin release with more IDs added.
 
 This feature adds a setting where players type their own animation IDs, separated by commas. Those
 animations then count as activity, just like the built-in ones. A player can cover a new or uncommon
-activity themselves, as soon as they know its animation IDs (for example from RuneLite's developer
-tools or the OSRS Wiki).
+activity themselves, as soon as they know its animation IDs. To make finding IDs possible for every
+player, the side panel also shows the ID of the last animation the player played.
 
 ## Clarifications
 
@@ -30,6 +30,9 @@ tools or the OSRS Wiki).
   `Activity Notifier: Inactive - Animation`), and it counts only for the general Animation detector.
 - Q: Should the herbiboar animation IDs also be added to the built-in list in this feature? → A: No.
   The custom setting covers herbiboar. The built-in list is unchanged.
+- Q (planning): Regular players can't open RuneLite's Developer Tools, which only work in a
+  developer-mode client. How do they find animation IDs? → A: The side panel shows the ID of the
+  player's last animation, read-only (User Story 4).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -110,6 +113,35 @@ real hand-typed lists.
 
 ---
 
+### User Story 4 - Find out an animation's ID (Priority: P2)
+
+A player wants to add an activity's animations but doesn't know their IDs, and can't use RuneLite's
+developer tools. They open the Activity Notifier side panel and do the activity. The panel shows the
+ID of the last animation they played and whether the plugin counts it, so they can copy the ID into
+the setting.
+
+**Why this priority**: Without a way to find IDs, most players can't use Story 1. It's P2 because the
+setting itself still works for players who already know their IDs.
+
+**Independent Test**: Open the side panel and chop a tree: the panel shows the woodcutting animation's
+ID and that it counts as Woodcutting. Search a herbiboar trail spot: the panel shows that ID as not
+counted. Copy it into the setting and search again: the panel now shows it as counted.
+
+**Acceptance Scenarios**:
+
+1. **Given** the side panel is open, **When** the player starts an animation, **Then** the panel shows
+   that animation's ID within one game tick.
+2. **Given** the panel shows an ID, **When** the animation ends and the player stands still, **Then**
+   the panel keeps showing the last ID rather than going blank.
+3. **Given** the panel shows an ID, **Then** it also shows how that animation counts: the built-in
+   activity name, `Animation (custom)` for a listed animation, or `Not counted`.
+4. **Given** the panel shows an ID, **When** the player selects it, **Then** they can copy it.
+5. **Given** another player nearby animates, **Then** the panel does not change.
+6. **Given** detection is paused or the Animation detector is off, **When** the player animates,
+   **Then** the panel still shows the ID, so players can look up IDs without counting activity.
+
+---
+
 ### Edge Cases
 
 - **ID already built in**: listing an animation that is already in the built-in list changes nothing.
@@ -161,13 +193,19 @@ real hand-typed lists.
   plugin's built-in detection is complete without it. This keeps it within the Plugin Hub rule against
   features whose entire function depends on player-provided IDs, and within the boss and PvP rules
   (Constitution, Principle I).
-- **FR-009**: The setting's description MUST tell the player to separate IDs with commas and where to
-  find animation IDs. The README MUST document the setting, with an example and how to find an
-  animation ID in RuneLite's developer tools.
+- **FR-009**: The setting's description MUST tell the player to separate IDs with commas and that the
+  side panel shows their last animation's ID. The README MUST document the setting with an example, and
+  explain how to find an ID with the side panel.
 - **FR-010**: Existing settings and signals MUST be unchanged. No existing setting is renamed or reset,
   and no existing signal's text changes.
 - **FR-011**: The list MUST NOT noticeably slow the game, however often the player animates and
   however long the list is (up to a few hundred IDs).
+- **FR-012**: The side panel MUST show the ID of the last animation the player's own character
+  started, and how the plugin counts it (built-in activity name, `Animation (custom)`, or
+  `Not counted`). It is read-only but selectable for copying. It keeps the last ID when the player stops
+  animating, and shows a placeholder until the first animation of the session.
+- **FR-013**: The last-animation display MUST work whether or not detection is paused and whatever
+  detectors are on. It MUST NOT show animations of anyone but the player's own character.
 
 ### Key Entities
 
@@ -190,19 +228,20 @@ real hand-typed lists.
 - **SC-004**: Any mix of valid and invalid entries never stops the valid entries from working, and
   never produces an error the player has to deal with.
 - **SC-005**: Built-in animations behave the same whatever the list contains.
+- **SC-006**: A player without developer tools can find the ID of an animation and add it to the
+  setting in under two minutes, using only the side panel and the settings page.
 
 ## Assumptions
 
 - **Placement**: the setting sits in the **General detectors** section, directly under the Animation
   toggle, because it only affects that detector.
-- **Side panel**: the side panel does not show or edit the list. It is a settings-page-only option,
-  like the extra delays.
+- **Side panel**: the side panel shows the last animation (FR-012) but does not show or edit the
+  list. The list is a settings-page-only option, like the extra delays.
 - **No per-ID delays**: listed animations use the Animation detector's delays. Per-ID delays are out of
   scope.
 - **No removing built-in animations**: the setting only adds animations. A way to stop a built-in
   animation from counting is out of scope.
-- **Where IDs come from**: players find IDs themselves, for example with RuneLite's developer tools,
-  which show the player's current animation, or from the OSRS Wiki. The plugin doesn't look IDs up or
-  check that they exist.
+- **Where IDs come from**: players find IDs with the side panel's last-animation display (FR-012).
+  The plugin doesn't look IDs up or check that they exist.
 - **Built-in list unchanged**: no animations are added to the built-in list in this feature,
   including herbiboar's. Herbiboar players use the custom setting.
