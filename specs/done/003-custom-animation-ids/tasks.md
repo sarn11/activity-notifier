@@ -165,8 +165,8 @@ straight away (quickstart #1Ã¢â‚¬â€œ#5, #12, #14).
   - In the Changelog, add an entry for this feature.
 - [X] T021 [P] Check `docs/ARCHITECTURE.md` and `docs/COMPONENTS.md`, if they are committed by then, for animation-detection descriptions that now need a line about custom IDs. Update only if they are tracked. Otherwise note it in `specs/docs-review-findings.md`.
 - [X] T022 Final `./gradlew clean build`. Record the test count in Notes.
-- [ ] T023 Hand off to the user for the full in-game pass of `quickstart.md`, following AGENTS.md "Testing": offer `./gradlew run`, link the Jagex Accounts wiki, list what to test, and wait for confirmation. Record the results in Notes, and update quickstart.md if any scenario turns out to be unreachable.
-- [ ] T024 Once the user confirms:
+- [X] T023 Hand off to the user for the full in-game pass of `quickstart.md`, following AGENTS.md "Testing": offer `./gradlew run`, link the Jagex Accounts wiki, list what to test, and wait for confirmation. Record the results in Notes, and update quickstart.md if any scenario turns out to be unreachable.
+- [X] T024 Once the user confirms:
   - Mark the spec Implemented and record any deviations in Notes.
   - Update the PR #3 description (summary and testing, like PR #2) and mark the PR ready.
   - Archive the spec: `git mv specs/003-custom-animation-ids specs/done/003-custom-animation-ids`, fix the code comments and contract links that cite the old path, and update `.specify/feature.json` (no BOM).
@@ -228,3 +228,5 @@ Developer B: T012 Ã¢â€ â€™ T013 Ã¢â€ â€™ T014   (parser ed
 - **T021**: `docs/` is still untracked, so it wasn't edited. Section 4 of `specs/docs-review-findings.md` (also untracked) lists the 003 updates the docs and the stashed Javadoc need.
 - **T022 (2026-10-14)**: `./gradlew clean build` passes with 102 tests (86 before, plus 16 new in `CustomAnimationsTest`) and 0 failures.
 - **T023 (2026-10-14)**: you confirmed the in-game pass, saying "everything works". Follow-up change: the status for a listed animation is now `Counts as Animation` rather than `Counts as Animation (custom)`, because the bracketed part was always cut off. `addRow` now lets a row with no right-hand control span both columns, so the status line uses the full panel width. Moving Last animation into the settings page was considered and rejected; see the spec's Clarifications. The T015 and T016 wording above reflects the original design.
+- **README rewrite (2026-10-14, at your request)**: the README was condensed to a high-level overview plus the Watchdog guide. Defaults, settings tables and the configuration reference were removed. The custom-IDs text is now one paragraph without the example list, which supersedes FR-009's "with an example". Committed separately from the feature code.
+- **T024 (2026-10-14)**: spec marked Implemented, archived to `specs/done/003-custom-animation-ids`, and PR #3 description written and marked ready.

@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 /**
  * The player's own animation IDs from the "Custom animation IDs" setting (see
- * specs/003-custom-animation-ids/contracts/config.md). Listed animations count for the Animation detector,
+ * specs/done/003-custom-animation-ids/contracts/config.md). Listed animations count for the Animation detector,
  * after ship-helm and built-in animations.
  * <p>
  * An instance caches the parsed set until the setting's text changes. Client thread only.

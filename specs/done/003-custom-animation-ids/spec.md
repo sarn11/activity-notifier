@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-14
 
-**Status**: Draft
+**Status**: Implemented and validated in-game (2026-10-14)
 
 **Input**: User description: "Lets add in the settings the option to add animation IDs, separated by a comma, so the user can just add the additional IDs they want, instead of having to update the plugin every time someone wants new functionality for animations."
 

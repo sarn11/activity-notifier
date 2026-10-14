@@ -1,8 +1,8 @@
 # Contract: Configuration and Side Panel (additions)
 
 This extends
-[specs/done/001-activity-detection/contracts/config.md](../../done/001-activity-detection/contracts/config.md)
-and [specs/done/002-damage-notifier/contracts/config.md](../../done/002-damage-notifier/contracts/config.md).
+[specs/done/001-activity-detection/contracts/config.md](../../001-activity-detection/contracts/config.md)
+and [specs/done/002-damage-notifier/contracts/config.md](../../002-damage-notifier/contracts/config.md).
 The group is still `activitynotifier`. Every existing key is unchanged (FR-010). The key below is new
 and **permanent** (Constitution V).
 
