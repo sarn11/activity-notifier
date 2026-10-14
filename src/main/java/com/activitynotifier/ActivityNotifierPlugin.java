@@ -5,6 +5,7 @@ import com.activitynotifier.damage.DamageSettings;
 import com.activitynotifier.detection.Activity;
 import com.activitynotifier.detection.ActivityTracker;
 import com.activitynotifier.detection.AnimationCatalog;
+import com.activitynotifier.detection.CustomAnimations;
 import com.activitynotifier.detection.Detector;
 import com.activitynotifier.detection.WeaponSpeed;
 import com.activitynotifier.detection.XpGainTracker;
@@ -58,7 +59,9 @@ import net.runelite.client.util.ImageUtil;
 @PluginDescriptor(
 	name = "Activity Notifier",
 	description = "Signals when you stop and resume activity, in a format the Watchdog plugin can react to",
-	tags = {"idle", "afk", "activity", "notification", "notifier", "watchdog", "skilling", "damage", "hit"}
+	tags = {"idle", "afk", "activity", "notification", "notifier", "watchdog", "skilling", "damage", "hit", "animation",
+		"inactive", "inactivity", "reminder", "alert", "warning", "low", "hp", "hitpoints", "prayer", "run", "energy", "spec",
+		"logout", "combat"}
 )
 public class ActivityNotifierPlugin extends Plugin
 {
@@ -128,6 +131,17 @@ public class ActivityNotifierPlugin extends Plugin
 	private Map<ResourceType, ResourceAlertTracker> resourceTrackers;
 	private DamageAlertTracker damageTracker;
 
+	/**
+	 * The player's "Custom animation IDs", parsed when the setting's text changes. Client thread only.
+	 */
+	private CustomAnimations customAnimations;
+
+	/**
+	 * The last animation sent to the side panel, so it is only updated when a new one starts. Client thread
+	 * only. Not reset on logout or hop, so the panel keeps showing it.
+	 */
+	private int lastAnimationShown;
+
 	private ActivityNotifierPanel panel;
 	private NavigationButton navButton;
 
@@ -153,6 +167,8 @@ public class ActivityNotifierPlugin extends Plugin
 			resourceTrackers.put(type, new ResourceAlertTracker(type));
 		}
 		damageTracker = new DamageAlertTracker();
+		customAnimations = new CustomAnimations();
+		lastAnimationShown = -1;
 		weaponSpeed.reset();
 		xpGainTracker.reset();
 		logoutWarnings.reset();
@@ -317,7 +333,29 @@ public class ActivityNotifierPlugin extends Plugin
 		{
 			return;
 		}
-		observeAnimation(event.getActor().getAnimation());
+		int animation = event.getActor().getAnimation();
+		// shown even while paused or with detectors off, so players can look up IDs (003 FR-013)
+		showLastAnimation(animation);
+		observeAnimation(animation);
+	}
+
+	/**
+	 * Sends a newly started animation to the side panel, on the EDT. No animation (-1) never replaces the
+	 * one shown.
+	 */
+	private void showLastAnimation(int animation)
+	{
+		if (animation == -1 || animation == lastAnimationShown)
+		{
+			return;
+		}
+		lastAnimationShown = animation;
+
+		final ActivityNotifierPanel p = panel;
+		if (p != null)
+		{
+			SwingUtilities.invokeLater(() -> p.setLastAnimation(animation));
+		}
 	}
 
 	@Subscribe
@@ -522,6 +560,11 @@ public class ActivityNotifierPlugin extends Plugin
 		String name = AnimationCatalog.activityFor(animation);
 		if (name == null)
 		{
+			// checked last, so a listed built-in or helm animation keeps its built-in meaning (003 FR-004)
+			if (customAnimations.ids(config.customAnimationIds()).contains(animation))
+			{
+				observe(Detector.ANIMATION, Detector.ANIMATION.getDisplayName());
+			}
 			return;
 		}
 

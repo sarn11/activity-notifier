@@ -1,6 +1,7 @@
 package com.activitynotifier.ui;
 
 import com.activitynotifier.ActivityNotifierConfig;
+import com.activitynotifier.detection.CustomAnimations;
 import com.activitynotifier.detection.Detector;
 import com.activitynotifier.resources.ResourceType;
 import java.awt.BorderLayout;
@@ -16,6 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import net.runelite.client.config.ConfigManager;
@@ -34,6 +36,7 @@ public class ActivityNotifierPanel extends PluginPanel
 	private static final int DELAY_STEP_MS = 100;
 	private static final int MAX_POINTS = 9_999;
 	private static final int MAX_PERCENT = 100;
+	private static final String NO_ANIMATION = "-";
 
 	private final ConfigManager configManager;
 	private final ActivityNotifierConfig config;
@@ -47,6 +50,14 @@ public class ActivityNotifierPanel extends PluginPanel
 	private final Map<ResourceType, JSpinner> thresholdSpinners = new EnumMap<>(ResourceType.class);
 	private final JCheckBox damageBox = new JCheckBox("Damage taken");
 	private final JSpinner damageMinimum = spinner(1, MAX_POINTS, 1);
+	private final JTextField lastAnimationId = new JTextField(NO_ANIMATION);
+	private final JLabel lastAnimationStatus = new JLabel();
+
+	/**
+	 * The last animation the player started, for finding IDs to add to Custom animation IDs; -1 until the
+	 * first one.
+	 */
+	private int lastAnimation = -1;
 
 	/**
 	 * Set while {@link #refresh} copies config into the controls, so that doesn't write config back.
@@ -114,11 +125,36 @@ public class ActivityNotifierPanel extends PluginPanel
 			}
 			damageBox.setSelected(config.alertDamage());
 			damageMinimum.setValue(Math.max(1, config.damageThreshold()));
+			// the custom list may have changed, which changes how the last animation counts
+			showLastAnimation();
 		}
 		finally
 		{
 			refreshing = false;
 		}
+	}
+
+	/**
+	 * Shows the animation the player just started. Called on the EDT.
+	 */
+	public void setLastAnimation(int animation)
+	{
+		lastAnimation = animation;
+		showLastAnimation();
+	}
+
+	private void showLastAnimation()
+	{
+		if (lastAnimation == -1)
+		{
+			lastAnimationId.setText(NO_ANIMATION);
+			lastAnimationStatus.setText("None yet");
+			return;
+		}
+
+		lastAnimationId.setText(String.valueOf(lastAnimation));
+		String countedAs = CustomAnimations.countedAs(lastAnimation, CustomAnimations.parse(config.customAnimationIds()));
+		lastAnimationStatus.setText(CustomAnimations.NOT_COUNTED.equals(countedAs) ? countedAs : "Counts as " + countedAs);
 	}
 
 	private JPanel generalRows()
@@ -170,6 +206,24 @@ public class ActivityNotifierPanel extends PluginPanel
 			detectorBoxes.put(detector, box);
 			delaySpinners.put(detector, spinner);
 			addRow(rows, row++, box, spinner);
+		}
+
+		if (group == Detector.Group.GENERAL)
+		{
+			// read-only, but selectable so the ID can be copied into Custom animation IDs
+			String tooltip = "The last animation you played, and whether it counts as activity. "
+				+ "Copy the ID into Custom animation IDs to make it count";
+			JLabel label = new JLabel("Last animation");
+			label.setToolTipText(tooltip);
+			lastAnimationId.setEditable(false);
+			lastAnimationId.setHorizontalAlignment(JTextField.RIGHT);
+			lastAnimationId.setPreferredSize(new Dimension(SPINNER_WIDTH, lastAnimationId.getPreferredSize().height));
+			lastAnimationId.setToolTipText(tooltip);
+			lastAnimationStatus.setFont(FontManager.getRunescapeSmallFont());
+			lastAnimationStatus.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+			lastAnimationStatus.setToolTipText(tooltip);
+			addRow(rows, row++, label, lastAnimationId);
+			addRow(rows, row++, lastAnimationStatus, null);
 		}
 		return rows;
 	}
@@ -279,6 +333,8 @@ public class ActivityNotifierPanel extends PluginPanel
 	{
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = row;
+		// without a right-hand control, the left one can use the full width
+		c.gridwidth = right == null ? 2 : 1;
 		c.insets = new Insets(1, 0, 1, 0);
 		c.anchor = GridBagConstraints.WEST;
 

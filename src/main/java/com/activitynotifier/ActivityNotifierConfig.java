@@ -10,8 +10,8 @@ import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
 /**
- * Config keys are a permanent contract (see specs/done/001-activity-detection/contracts/config.md and
- * specs/done/002-damage-notifier/contracts/config.md).
+ * Config keys are a permanent contract (see specs/done/001-activity-detection/contracts/config.md,
+ * specs/done/002-damage-notifier/contracts/config.md and specs/done/003-custom-animation-ids/contracts/config.md).
  * Never rename a keyName without a migration.
  */
 @ConfigGroup(ActivityNotifierConfig.GROUP)
@@ -290,10 +290,22 @@ public interface ActivityNotifierConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "customAnimationIds",
+		name = "Custom animation IDs",
+		description = "Comma-separated animation IDs that also count as animation activity, e.g. 5216, 13149. The side panel shows your last animation's ID",
+		position = 1,
+		section = generalDetectorsSection
+	)
+	default String customAnimationIds()
+	{
+		return "";
+	}
+
+	@ConfigItem(
 		keyName = "detectInteraction",
 		name = "Interaction",
 		description = "Interacting with NPCs (including combat targets and fishing spots) counts as activity",
-		position = 1,
+		position = 2,
 		section = generalDetectorsSection
 	)
 	default boolean detectInteraction()
@@ -305,7 +317,7 @@ public interface ActivityNotifierConfig extends Config
 		keyName = "detectMovement",
 		name = "Movement",
 		description = "Walking and running count as activity",
-		position = 2,
+		position = 3,
 		section = generalDetectorsSection
 	)
 	default boolean detectMovement()
@@ -317,7 +329,7 @@ public interface ActivityNotifierConfig extends Config
 		keyName = "detectXpGain",
 		name = "XP gain",
 		description = "Gaining XP counts as activity",
-		position = 3,
+		position = 4,
 		section = generalDetectorsSection
 	)
 	default boolean detectXpGain()
@@ -330,7 +342,7 @@ public interface ActivityNotifierConfig extends Config
 		keyName = "xpThreshold",
 		name = "XP gain threshold",
 		description = "Minimum XP in a single drop for the XP gain detector to count it",
-		position = 4,
+		position = 5,
 		section = generalDetectorsSection
 	)
 	default int xpThreshold()
