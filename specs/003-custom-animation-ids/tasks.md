@@ -18,7 +18,7 @@ implementing.
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies on incomplete tasks)
-- **[Story]**: The user story the task belongs to (US1â€“US4 from spec.md)
+- **[Story]**: The user story the task belongs to (US1Ã¢â‚¬â€œUS4 from spec.md)
 
 ## Conventions for every task
 
@@ -48,7 +48,7 @@ implementing.
 
 **Purpose**: The pure parser and cache that every story uses (data-model.md, research R1 and R2).
 
-**âš ï¸ CRITICAL**: No user story work can begin until this phase is complete.
+**Ã¢Å¡Â Ã¯Â¸Â CRITICAL**: No user story work can begin until this phase is complete.
 
 - [X] T003 Create `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with failing tests:
   - `parse("5216, 13149")` returns exactly {5216, 13149}.
@@ -66,13 +66,13 @@ implementing.
 
 ---
 
-## Phase 3: User Story 1 - Count my own animations as activity (Priority: P1) ðŸŽ¯ MVP
+## Phase 3: User Story 1 - Count my own animations as activity (Priority: P1) Ã°Å¸Å½Â¯ MVP
 
 **Goal**: An animation ID listed in the setting counts as activity for the Animation detector, named
 `Animation` (FR-001 to FR-004, FR-007, FR-008, FR-010).
 
 **Independent Test**: With only the Animation detector on, an unknown animation goes Inactive. List its
-ID, and the same animation keeps you active and resumes with `Active - Animation (â€¦)` (quickstart #4,
+ID, and the same animation keeps you active and resumes with `Active - Animation (Ã¢â‚¬Â¦)` (quickstart #4,
 #6).
 
 - [X] T006 [US1] In `src/main/java/com/activitynotifier/ActivityNotifierConfig.java`:
@@ -83,7 +83,7 @@ ID, and the same animation keeps you active and resumes with `Active - Animation
   - Add a `private CustomAnimations customAnimations` field with a one-line Javadoc ("client thread only"), and create it in `startUp()` next to the other trackers.
   - In `observeAnimation`, replace the early `return` for an unknown name with this: if `customAnimations.ids(config.customAnimationIds()).contains(animation)`, call `observe(Detector.ANIMATION, Detector.ANIMATION.getDisplayName())`; otherwise return. Ship-helm and built-in handling stay first and unchanged (research R3, FR-004).
   - Update the method's Javadoc list: unknown animations count as `Animation` if listed in Custom animation IDs, and are otherwise ignored.
-- [X] T008 [US1] Checkpoint: `./gradlew build` passes, including `AnimationCatalogTest`, unchanged (SC-003). Before Phase 7 the user can validate quickstart #4, #6 and #9â€“#11 (ignore the panel column until US4).
+- [X] T008 [US1] Checkpoint: `./gradlew build` passes, including `AnimationCatalogTest`, unchanged (SC-003). Before Phase 7 the user can validate quickstart #4, #6 and #9Ã¢â‚¬â€œ#11 (ignore the panel column until US4).
 
 **Checkpoint**: Custom IDs count as activity. This is the MVP.
 
@@ -96,12 +96,12 @@ ID, and the same animation keeps you active and resumes with `Active - Animation
 **Independent Test**: Add an ID, and it counts. Remove it, and it doesn't. No restart (quickstart #7,
 #13).
 
-- [ ] T009 [US2] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java`:
+- [X] T009 [US2] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java`:
   - `ids("5216")` contains 5216. Then `ids("")` does not contain it, and `ids("13149")` contains 13149 but not 5216.
   - Calling `ids` twice with equal but distinct `String` instances (e.g. `new String("5216")`) returns the same `Set` instance, which proves the cache.
   - Fix `CustomAnimations.ids` if any test fails.
-- [ ] T010 [US2] Check that no other code caches the parsed set. `ActivityNotifierPlugin` must call `config.customAnimationIds()` on every lookup (research R1), so a `ProfileChanged`, which posts no per-key `ConfigChanged`, is still picked up. No file change is expected. If one is needed, record it in Notes.
-- [ ] T011 [US2] Checkpoint: `./gradlew build` passes.
+- [X] T010 [US2] Check that no other code caches the parsed set. `ActivityNotifierPlugin` must call `config.customAnimationIds()` on every lookup (research R1), so a `ProfileChanged`, which posts no per-key `ConfigChanged`, is still picked up. No file change is expected. If one is needed, record it in Notes.
+- [X] T011 [US2] Checkpoint: `./gradlew build` passes.
 
 ---
 
@@ -112,15 +112,15 @@ ID, and the same animation keeps you active and resumes with `Active - Animation
 **Independent Test**: The setting ` 5216 ,,13149, 5216, abc, -5 ,` makes both 5216 and 13149 count
 (quickstart #8).
 
-- [ ] T012 [US3] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with parse cases:
+- [X] T012 [US3] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with parse cases:
   - ` 5216 ,,13149, 5216, abc, -5 ,` gives {5216, 13149}.
   - `52l6`, `1.5`, `-1` and `99999999999` (overflow) each give an empty set.
   - `0` gives {0}, and `+5216` gives {5216} (research R2).
   - `5216 13149` (no comma) gives an empty set, because it is a single invalid entry.
   - `,` and `  ` give an empty set.
   - A 300-entry generated list parses to 300 IDs.
-- [ ] T013 [US3] Fix `src/main/java/com/activitynotifier/detection/CustomAnimations.java` if any T012 case fails. `parse` must never throw.
-- [ ] T014 [US3] Checkpoint: `./gradlew build` passes.
+- [X] T013 [US3] Fix `src/main/java/com/activitynotifier/detection/CustomAnimations.java` if any T012 case fails. `parse` must never throw.
+- [X] T014 [US3] Checkpoint: `./gradlew build` passes.
 
 ---
 
@@ -131,7 +131,7 @@ research R4 and R5).
 
 **Independent Test**: Chop a tree, and the panel shows its ID and `Woodcutting`. Do an unknown action,
 and it shows `Not counted`. Paste the ID into the setting, and the status becomes `Animation (custom)`
-straight away (quickstart #1â€“#5, #12, #14).
+straight away (quickstart #1Ã¢â‚¬â€œ#5, #12, #14).
 
 - [ ] T015 [US4] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with `countedAs` tests:
   - A helm ID (first element of `AnimationCatalog.HELM_ANIMATIONS`) gives `Sailing`, even if it is listed.
@@ -200,8 +200,8 @@ straight away (quickstart #1â€“#5, #12, #14).
 ## Parallel Example: User Story 3 alongside User Story 1
 
 ```text
-Developer A: T006 â†’ T007 â†’ T008   (config + plugin glue)
-Developer B: T012 â†’ T013 â†’ T014   (parser edge cases)
+Developer A: T006 Ã¢â€ â€™ T007 Ã¢â€ â€™ T008   (config + plugin glue)
+Developer B: T012 Ã¢â€ â€™ T013 Ã¢â€ â€™ T014   (parser edge cases)
 ```
 
 ## Implementation Strategy
