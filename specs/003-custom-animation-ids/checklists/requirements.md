@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -34,9 +34,9 @@
 - Iteration 1: FR-011 originally said how the list would be stored ("turned into a lookup when the
   setting changes"), which is an implementation detail. It was reworded as a user-facing performance
   requirement.
-- Two [NEEDS CLARIFICATION] markers are open: FR-003 (how custom-ID activity is named and whether it
-  can count toward a specific activity) and the built-in herbiboar assumption. Resolve them before
-  `/speckit-plan`.
+- Iteration 2 (2026-10-14): both [NEEDS CLARIFICATION] markers were resolved by the user. FR-003 uses
+  plain IDs named `Animation`, counted for the Animation detector only. The built-in list is unchanged,
+  so herbiboar is not added. All items pass.
 - Plugin Hub check: Principle I forbids features "whose entire function depends on player-provided
   IDs". FR-008 keeps this setting an optional extension of built-in detection, limited to the player's
   own animations. The plan's Constitution Check must confirm this.

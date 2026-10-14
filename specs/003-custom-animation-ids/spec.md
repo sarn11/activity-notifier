@@ -21,6 +21,16 @@ animations then count as activity, just like the built-in ones. A player can cov
 activity themselves, as soon as they know its animation IDs (for example from RuneLite's developer
 tools or the OSRS Wiki).
 
+## Clarifications
+
+### Session 2026-10-14
+
+- Q: How is activity from a listed animation named in signals, and can it count toward a specific
+  activity? → A: Plain IDs only. Signals name it `Animation` (for example
+  `Activity Notifier: Inactive - Animation`), and it counts only for the general Animation detector.
+- Q: Should the herbiboar animation IDs also be added to the built-in list in this feature? → A: No.
+  The custom setting covers herbiboar. The built-in list is unchanged.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Count my own animations as activity (Priority: P1)
@@ -133,9 +143,10 @@ real hand-typed lists.
   whose ID is in the list MUST count as activity for the Animation detector, in the same way as a
   built-in animation. It MUST respect the Animation detector's extra delay, the base delay and
   pausing.
-- **FR-003**: Activity from a listed animation MUST be named
-  [NEEDS CLARIFICATION: how activity from a custom ID is named in signals and whether it can count
-  toward a specific activity such as Woodcutting. See Question 1.]
+- **FR-003**: Activity from a listed animation MUST be named `Animation` in signals (for example
+  `Activity Notifier: Active - Animation (inactive for 12s)`). It MUST count only for the general
+  Animation detector, never for a specific activity such as Woodcutting. The input holds plain IDs
+  only, with no labels.
 - **FR-004**: Built-in animations MUST keep their current meaning. Listing a built-in animation MUST
   NOT change which activity it counts as. Listing a ship-helm animation MUST NOT make it count for
   anything but Sailing.
@@ -193,5 +204,5 @@ real hand-typed lists.
 - **Where IDs come from**: players find IDs themselves, for example with RuneLite's developer tools,
   which show the player's current animation, or from the OSRS Wiki. The plugin doesn't look IDs up or
   check that they exist.
-- **Built-in herbiboar support**: [NEEDS CLARIFICATION: should the herbiboar animation IDs the user
-  found also be added to the built-in list in this feature? See Question 2.]
+- **Built-in list unchanged**: no animations are added to the built-in list in this feature,
+  including herbiboar's. Herbiboar players use the custom setting.
