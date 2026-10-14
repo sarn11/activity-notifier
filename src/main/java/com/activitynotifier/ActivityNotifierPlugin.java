@@ -5,6 +5,7 @@ import com.activitynotifier.damage.DamageSettings;
 import com.activitynotifier.detection.Activity;
 import com.activitynotifier.detection.ActivityTracker;
 import com.activitynotifier.detection.AnimationCatalog;
+import com.activitynotifier.detection.CustomAnimations;
 import com.activitynotifier.detection.Detector;
 import com.activitynotifier.detection.WeaponSpeed;
 import com.activitynotifier.detection.XpGainTracker;
@@ -128,6 +129,11 @@ public class ActivityNotifierPlugin extends Plugin
 	private Map<ResourceType, ResourceAlertTracker> resourceTrackers;
 	private DamageAlertTracker damageTracker;
 
+	/**
+	 * The player's "Custom animation IDs", parsed when the setting's text changes. Client thread only.
+	 */
+	private CustomAnimations customAnimations;
+
 	private ActivityNotifierPanel panel;
 	private NavigationButton navButton;
 
@@ -153,6 +159,7 @@ public class ActivityNotifierPlugin extends Plugin
 			resourceTrackers.put(type, new ResourceAlertTracker(type));
 		}
 		damageTracker = new DamageAlertTracker();
+		customAnimations = new CustomAnimations();
 		weaponSpeed.reset();
 		xpGainTracker.reset();
 		logoutWarnings.reset();
@@ -522,6 +529,11 @@ public class ActivityNotifierPlugin extends Plugin
 		String name = AnimationCatalog.activityFor(animation);
 		if (name == null)
 		{
+			// checked last, so a listed built-in or helm animation keeps its built-in meaning (003 FR-004)
+			if (customAnimations.ids(config.customAnimationIds()).contains(animation))
+			{
+				observe(Detector.ANIMATION, Detector.ANIMATION.getDisplayName());
+			}
 			return;
 		}
 

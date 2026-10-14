@@ -18,7 +18,7 @@ implementing.
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies on incomplete tasks)
-- **[Story]**: The user story the task belongs to (US1–US4 from spec.md)
+- **[Story]**: The user story the task belongs to (US1â€“US4 from spec.md)
 
 ## Conventions for every task
 
@@ -39,8 +39,8 @@ implementing.
 
 **Purpose**: A green baseline and a clean working tree before changing anything.
 
-- [ ] T001 Ask the user how to handle the uncommitted Javadoc work and `docs/` that came along from `master`: commit it on its own, or stash it. It touches `ActivityNotifierPlugin.java`, `AnimationCatalog.java` and `ActivityNotifierPanel.java`, which this feature edits, and AGENTS.md forbids mixing it into feature commits. Don't edit those files until this is settled. No file changes by the agent without the user's answer.
-- [ ] T002 Run `./gradlew build` on branch `003-custom-animation-ids` and confirm the build and all existing tests pass. This is the baseline; no file changes.
+- [X] T001 Ask the user how to handle the uncommitted Javadoc work and `docs/` that came along from `master`: commit it on its own, or stash it. It touches `ActivityNotifierPlugin.java`, `AnimationCatalog.java` and `ActivityNotifierPanel.java`, which this feature edits, and AGENTS.md forbids mixing it into feature commits. Don't edit those files until this is settled. No file changes by the agent without the user's answer.
+- [X] T002 Run `./gradlew build` on branch `003-custom-animation-ids` and confirm the build and all existing tests pass. This is the baseline; no file changes.
 
 ---
 
@@ -48,42 +48,42 @@ implementing.
 
 **Purpose**: The pure parser and cache that every story uses (data-model.md, research R1 and R2).
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
+**âš ï¸ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T003 Create `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with failing tests:
+- [X] T003 Create `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with failing tests:
   - `parse("5216, 13149")` returns exactly {5216, 13149}.
   - `parse("")` and `parse(null)` return an empty set.
   - The returned set is immutable: `add` throws `UnsupportedOperationException`.
   - `ids(text)` returns an equal set for the same text, and a new result after the text changes.
-- [ ] T004 Create `src/main/java/com/activitynotifier/detection/CustomAnimations.java`, a `public final` class:
+- [X] T004 Create `src/main/java/com/activitynotifier/detection/CustomAnimations.java`, a `public final` class:
   - `public static Set<Integer> parse(@Nullable String text)`, following research R2: split on `,`, trim, skip empty entries, keep `Integer.parseInt` results `>= 0`, ignore `NumberFormatException`, and return `ImmutableSet`.
   - Instance cache fields `lastText` (`""`) and `lastIds` (empty), plus `public Set<Integer> ids(@Nullable String text)`, which re-parses only when the text differs (null is treated as `""`).
   - Add a class Javadoc citing `specs/003-custom-animation-ids/contracts/config.md` and stating that the cache is client-thread only.
   - Make T003 pass.
-- [ ] T005 Checkpoint: `./gradlew build` passes.
+- [X] T005 Checkpoint: `./gradlew build` passes.
 
 **Checkpoint**: The parser is ready. User story work can begin.
 
 ---
 
-## Phase 3: User Story 1 - Count my own animations as activity (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Count my own animations as activity (Priority: P1) ðŸŽ¯ MVP
 
 **Goal**: An animation ID listed in the setting counts as activity for the Animation detector, named
 `Animation` (FR-001 to FR-004, FR-007, FR-008, FR-010).
 
 **Independent Test**: With only the Animation detector on, an unknown animation goes Inactive. List its
-ID, and the same animation keeps you active and resumes with `Active - Animation (…)` (quickstart #4,
+ID, and the same animation keeps you active and resumes with `Active - Animation (â€¦)` (quickstart #4,
 #6).
 
-- [ ] T006 [US1] In `src/main/java/com/activitynotifier/ActivityNotifierConfig.java`:
+- [X] T006 [US1] In `src/main/java/com/activitynotifier/ActivityNotifierConfig.java`:
   - Add the `customAnimationIds` item to the General detectors region, exactly as in `contracts/config.md`: `String`, default `""`, position 1, with that name and description.
   - Move `detectInteraction`, `detectMovement`, `detectXpGain` and `xpThreshold` to positions 2, 3, 4 and 5. Their keys don't change.
   - Add `specs/003-custom-animation-ids/contracts/config.md` to the interface Javadoc's list of contracts.
-- [ ] T007 [US1] In `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T007 [US1] In `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - Add a `private CustomAnimations customAnimations` field with a one-line Javadoc ("client thread only"), and create it in `startUp()` next to the other trackers.
   - In `observeAnimation`, replace the early `return` for an unknown name with this: if `customAnimations.ids(config.customAnimationIds()).contains(animation)`, call `observe(Detector.ANIMATION, Detector.ANIMATION.getDisplayName())`; otherwise return. Ship-helm and built-in handling stay first and unchanged (research R3, FR-004).
   - Update the method's Javadoc list: unknown animations count as `Animation` if listed in Custom animation IDs, and are otherwise ignored.
-- [ ] T008 [US1] Checkpoint: `./gradlew build` passes, including `AnimationCatalogTest`, unchanged (SC-003). Before Phase 7 the user can validate quickstart #4, #6 and #9–#11 (ignore the panel column until US4).
+- [X] T008 [US1] Checkpoint: `./gradlew build` passes, including `AnimationCatalogTest`, unchanged (SC-003). Before Phase 7 the user can validate quickstart #4, #6 and #9â€“#11 (ignore the panel column until US4).
 
 **Checkpoint**: Custom IDs count as activity. This is the MVP.
 
@@ -131,7 +131,7 @@ research R4 and R5).
 
 **Independent Test**: Chop a tree, and the panel shows its ID and `Woodcutting`. Do an unknown action,
 and it shows `Not counted`. Paste the ID into the setting, and the status becomes `Animation (custom)`
-straight away (quickstart #1–#5, #12, #14).
+straight away (quickstart #1â€“#5, #12, #14).
 
 - [ ] T015 [US4] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with `countedAs` tests:
   - A helm ID (first element of `AnimationCatalog.HELM_ANIMATIONS`) gives `Sailing`, even if it is listed.
@@ -200,8 +200,8 @@ straight away (quickstart #1–#5, #12, #14).
 ## Parallel Example: User Story 3 alongside User Story 1
 
 ```text
-Developer A: T006 → T007 → T008   (config + plugin glue)
-Developer B: T012 → T013 → T014   (parser edge cases)
+Developer A: T006 â†’ T007 â†’ T008   (config + plugin glue)
+Developer B: T012 â†’ T013 â†’ T014   (parser edge cases)
 ```
 
 ## Implementation Strategy
