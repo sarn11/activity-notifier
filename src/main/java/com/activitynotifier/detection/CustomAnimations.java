@@ -13,6 +13,9 @@ import javax.annotation.Nullable;
  */
 public final class CustomAnimations
 {
+	static final String CUSTOM = Detector.ANIMATION.getDisplayName() + " (custom)";
+	public static final String NOT_COUNTED = "Not counted";
+
 	private String lastText = "";
 	private Set<Integer> lastIds = ImmutableSet.of();
 
@@ -51,6 +54,25 @@ public final class CustomAnimations
 			}
 		}
 		return ids.build();
+	}
+
+	/**
+	 * How the plugin counts an animation, for the side panel. Checked in the same order as the plugin:
+	 * ship-helm (Sailing), then built-in (its activity name), then listed ("Animation (custom)").
+	 */
+	public static String countedAs(int animation, Set<Integer> custom)
+	{
+		if (AnimationCatalog.isHelmAnimation(animation))
+		{
+			return Detector.SAILING.getDisplayName();
+		}
+
+		String name = AnimationCatalog.activityFor(animation);
+		if (name != null)
+		{
+			return name;
+		}
+		return custom.contains(animation) ? CUSTOM : NOT_COUNTED;
 	}
 
 	/**

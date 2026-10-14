@@ -41,13 +41,15 @@ The existing items in the section move down one position. Their keys don't chang
 
 ## Side panel (addition)
 
-One row at the bottom of the panel's **General detectors** section:
+Two rows at the bottom of the panel's **General detectors** section. *(Implementation deviation: the
+status was moved to its own row, because it didn't fit next to the field at side-panel width.)*
 
 | Element | Content |
 |---|---|
-| Left label | `Last animation: <status>`. `<status>` is `none yet` before the first animation, then one of: a built-in activity name (e.g. `Woodcutting`, `Animation`), `Sailing` (ship-helm), `Animation (custom)`, or `Not counted` |
-| Right field | The ID as a number, or `-` before the first animation. It is not editable, but can be selected and copied, and is the same width as the spinners |
-| Tooltip | "The last animation you played, and whether it counts as activity. Copy the ID into Custom animation IDs to make it count" |
+| Row 1, left | The label `Last animation` |
+| Row 1, right | The ID as a number, or `-` before the first animation. It is not editable, but can be selected and copied, and is the same width as the spinners |
+| Row 2 | A small grey status line: `None yet` before the first animation, then `Counts as <name>` or `Not counted`. `<name>` is a built-in activity name (e.g. `Woodcutting`, `Animation`), `Sailing` (ship-helm), or `Animation (custom)` |
+| Tooltip (all three) | "The last animation you played, and whether it counts as activity. Copy the ID into Custom animation IDs to make it count" |
 
 - Only the local player's animations update it. `-1` (no animation) never replaces the shown ID.
 - It updates whether detection is paused or not, and whatever detectors are on (FR-013).

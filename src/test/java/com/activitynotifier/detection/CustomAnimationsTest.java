@@ -6,6 +6,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import net.runelite.api.gameval.AnimationID;
 import org.junit.Test;
 
 public class CustomAnimationsTest
@@ -73,6 +74,30 @@ public class CustomAnimationsTest
 			text.append(id).append(", ");
 		}
 		assertEquals(300, CustomAnimations.parse(text.toString()).size());
+	}
+
+	@Test
+	public void helmAnimationsCountAsSailingEvenIfListed()
+	{
+		int helm = AnimationCatalog.HELM_ANIMATIONS.iterator().next();
+		assertEquals("Sailing", CustomAnimations.countedAs(helm, ImmutableSet.of()));
+		assertEquals("Sailing", CustomAnimations.countedAs(helm, ImmutableSet.of(helm)));
+	}
+
+	@Test
+	public void builtInAnimationsKeepTheirNameEvenIfListed()
+	{
+		int axe = AnimationID.HUMAN_WOODCUTTING_BRONZE_AXE;
+		assertEquals("Woodcutting", CustomAnimations.countedAs(axe, ImmutableSet.of()));
+		assertEquals("Woodcutting", CustomAnimations.countedAs(axe, ImmutableSet.of(axe)));
+		assertEquals("Animation", CustomAnimations.countedAs(AnimationID.MILKIT, ImmutableSet.of()));
+	}
+
+	@Test
+	public void listedAnimationsCountAsCustom()
+	{
+		assertEquals("Not counted", CustomAnimations.countedAs(5216, ImmutableSet.of()));
+		assertEquals("Animation (custom)", CustomAnimations.countedAs(5216, ImmutableSet.of(5216)));
 	}
 
 	@Test

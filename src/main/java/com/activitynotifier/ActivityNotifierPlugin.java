@@ -134,6 +134,12 @@ public class ActivityNotifierPlugin extends Plugin
 	 */
 	private CustomAnimations customAnimations;
 
+	/**
+	 * The last animation sent to the side panel, so it is only updated when a new one starts. Client thread
+	 * only. Not reset on logout or hop, so the panel keeps showing it.
+	 */
+	private int lastAnimationShown;
+
 	private ActivityNotifierPanel panel;
 	private NavigationButton navButton;
 
@@ -160,6 +166,7 @@ public class ActivityNotifierPlugin extends Plugin
 		}
 		damageTracker = new DamageAlertTracker();
 		customAnimations = new CustomAnimations();
+		lastAnimationShown = -1;
 		weaponSpeed.reset();
 		xpGainTracker.reset();
 		logoutWarnings.reset();
@@ -324,7 +331,29 @@ public class ActivityNotifierPlugin extends Plugin
 		{
 			return;
 		}
-		observeAnimation(event.getActor().getAnimation());
+		int animation = event.getActor().getAnimation();
+		// shown even while paused or with detectors off, so players can look up IDs (003 FR-013)
+		showLastAnimation(animation);
+		observeAnimation(animation);
+	}
+
+	/**
+	 * Sends a newly started animation to the side panel, on the EDT. No animation (-1) never replaces the
+	 * one shown.
+	 */
+	private void showLastAnimation(int animation)
+	{
+		if (animation == -1 || animation == lastAnimationShown)
+		{
+			return;
+		}
+		lastAnimationShown = animation;
+
+		final ActivityNotifierPanel p = panel;
+		if (p != null)
+		{
+			SwingUtilities.invokeLater(() -> p.setLastAnimation(animation));
+		}
 	}
 
 	@Subscribe

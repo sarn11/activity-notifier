@@ -38,7 +38,7 @@ Turns the config text into a set of IDs, and tells callers how an animation coun
 | Field | Type | Notes |
 |---|---|---|
 | `lastAnimation` | int | `-1` until the first `setLastAnimation`. EDT only. |
-| `lastAnimationStatus` | JLabel | `Last animation: <status>`. The status is recomputed in `setLastAnimation` and `refresh()`. |
+| `lastAnimationStatus` | JLabel | The status line below the ID: `None yet`, `Counts as <name>` or `Not counted`. It is recomputed in `setLastAnimation` and `refresh()`. |
 | `lastAnimationId` | JTextField | Not editable, but selectable. Shows the ID, or `-` before the first animation. |
 
 New method: `setLastAnimation(int id)`, called on the EDT.

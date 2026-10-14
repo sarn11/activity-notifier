@@ -133,26 +133,26 @@ research R4 and R5).
 and it shows `Not counted`. Paste the ID into the setting, and the status becomes `Animation (custom)`
 straight away (quickstart #1Ã¢â‚¬â€œ#5, #12, #14).
 
-- [ ] T015 [US4] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with `countedAs` tests:
+- [X] T015 [US4] Extend `src/test/java/com/activitynotifier/detection/CustomAnimationsTest.java` with `countedAs` tests:
   - A helm ID (first element of `AnimationCatalog.HELM_ANIMATIONS`) gives `Sailing`, even if it is listed.
   - `AnimationID.HUMAN_WOODCUTTING_BRONZE_AXE` gives `Woodcutting`, listed or not.
   - `AnimationID.MILKIT` gives `Animation`, which is the built-in MISC.
   - An unlisted unknown ID (e.g. 5216 with an empty set) gives `Not counted`.
   - The same ID listed gives `Animation (custom)`.
-- [ ] T016 [US4] Add `public static String countedAs(int animation, Set<Integer> custom)` to `src/main/java/com/activitynotifier/detection/CustomAnimations.java`, in the order from data-model.md: helm, then `AnimationCatalog.activityFor`, then custom, then `Not counted`. Use constants for `Sailing`, `Animation (custom)` and `Not counted`; take `Sailing` from `Detector.SAILING.getDisplayName()` if it matches. Make T015 pass.
-- [ ] T017 [US4] In `src/main/java/com/activitynotifier/ui/ActivityNotifierPanel.java`:
+- [X] T016 [US4] Add `public static String countedAs(int animation, Set<Integer> custom)` to `src/main/java/com/activitynotifier/detection/CustomAnimations.java`, in the order from data-model.md: helm, then `AnimationCatalog.activityFor`, then custom, then `Not counted`. Use constants for `Sailing`, `Animation (custom)` and `Not counted`; take `Sailing` from `Detector.SAILING.getDisplayName()` if it matches. Make T015 pass.
+- [X] T017 [US4] In `src/main/java/com/activitynotifier/ui/ActivityNotifierPanel.java`:
   - Add the fields `lastAnimation` (int, `-1`), `lastAnimationStatus` (`JLabel`) and `lastAnimationId` (`JTextField`). The text field is not editable, selectable, `SPINNER_WIDTH` wide and right-aligned.
   - In `detectorRows(Detector.Group.GENERAL)` only, add one last row with `addRow(rows, row++, lastAnimationStatus, lastAnimationId)`, with the tooltip from `contracts/config.md`.
   - Add `public void setLastAnimation(int id)` (EDT), which stores the ID and calls a private `showLastAnimation()`.
   - `showLastAnimation()` sets the field to the ID, or `-`, and the label to `Last animation: ` plus `none yet` or `CustomAnimations.countedAs(lastAnimation, CustomAnimations.parse(config.customAnimationIds()))`.
   - Call `showLastAnimation()` from `refresh()`, so list edits and profile switches update the status.
   - Update the class Javadoc if needed. It must still say "never touches the client".
-- [ ] T018 [US4] In `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
+- [X] T018 [US4] In `src/main/java/com/activitynotifier/ActivityNotifierPlugin.java`:
   - Add a `private int lastAnimationShown` field ("client thread only"), set to `-1` in `startUp()`.
   - In `onAnimationChanged`, after the local-player check and before `observeAnimation`: read the animation once. If it is not `-1` and differs from `lastAnimationShown`, store it and hand it to the panel with `SwingUtilities.invokeLater`. Capture `panel` in a local and null-check it, following `refreshPanel()`.
   - Don't reset `lastAnimationShown` on logout or hop (data-model.md).
   - Update the handler's Javadoc to mention the panel update (FR-013: this happens regardless of pause and detector toggles).
-- [ ] T019 [US4] Checkpoint: `./gradlew build` passes.
+- [X] T019 [US4] Checkpoint: `./gradlew build` passes.
 
 ---
 
@@ -223,3 +223,5 @@ Developer B: T012 Ã¢â€ â€™ T013 Ã¢â€ â€™ T014   (parser ed
 - Commits: one commit per phase or logical group, with spec-file updates in the same commit as the code
   they describe. Never include the pre-existing Javadoc work (T001).
 - Mark tasks `[X]` as they complete, and record deviations here (CLAUDE.md "Keep the spec current").
+- **Deviation (T017)**: the panel status went on its own small grey row below `Last animation [ID]` (`None yet` / `Counts as <name>` / `Not counted`), because `Last animation: Animation (custom)` didn't fit next to the field at side-panel width. contracts/config.md, data-model.md and quickstart.md were updated to match. `CustomAnimations.NOT_COUNTED` is public so the panel can word the status.
+- **Deviation (T007, T018)**: the Javadoc work was stashed (T001), so the committed `observeAnimation` and `onAnimationChanged` had no Javadoc to update. Short inline comments citing 003 were added instead, to keep stash conflicts small.
