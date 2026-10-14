@@ -24,6 +24,26 @@ its own **extra delay**, which you can set under *Extra delays* or in the side p
 | XP gain | on | 3000 ms | Gaining XP (at least *XP gain threshold*, 1 by default, in one drop). The extra delay covers sparse drops |
 | Movement | off | 2000 ms | Walking and running. The extra delay is a grace period after you stop |
 
+### Custom animation IDs
+
+The Animation detector only recognises animations the plugin knows about. If something you do isn't
+recognised, for example searching trails while hunting herbiboar, you can add its animation IDs
+yourself in **Custom animation IDs** (under *General detectors*), separated by commas:
+
+```text
+5216, 13149
+```
+
+- Listed animations count for the **Animation** detector, and signals call them `Animation`. They use the Animation detector's delays and toggle.
+- Changes apply straight away, with no restart.
+- Spaces, empty entries, duplicates and typos are ignored. A typo doesn't stop the rest of the list working.
+- Listing an animation the plugin already knows changes nothing. A woodcutting animation still counts as `Woodcutting`.
+- Only your own character's animations count.
+
+**Finding an ID:** open the side panel and do the action. **Last animation** shows the ID of the
+last animation you played, and whether it counts. Select the ID, copy it, and paste it into the
+setting. The line below the ID changes from `Not counted` to `Counts as Animation (custom)`.
+
 ### Specific activities
 
 Cooking, Crafting, Fishing, Firemaking, Fletching, Herblore, Mining, Woodcutting, Smithing, Sailing,
@@ -94,6 +114,7 @@ The Activity Notifier button in the sidebar opens a panel with:
 - the base delay
 - the chat and notification channel toggles
 - every detector, each with its extra delay
+- your **last animation**: its ID, which you can select and copy, and whether it counts as activity (see [Custom animation IDs](#custom-animation-ids))
 - every resource alert, each with its threshold
 - the damage taken alert, with its minimum damage (its cooldown and damage-over-time options are in the settings)
 
@@ -197,7 +218,7 @@ In Watchdog actions, `$1` is the activity name, e.g. an overlay that says `Stopp
 |---|---|
 | General | Show side panel, Pause hotkey, Base delay (2000 ms) |
 | Signals | Chat messages (on), RuneLite notification (off), Inactive reminders (off) and their interval (60 s), and the detail text of every signal. Tokens: `{activity}`, `{duration}`, `{resource}`, `{value}`, `{threshold}`, and for damage taken `{damage}`, `{hitpoints}` (`{threshold}` is the minimum damage there). An empty text sends the head only |
-| General detectors | Animation, Interaction, Movement, XP gain, XP gain threshold |
+| General detectors | Animation, Custom animation IDs (empty), Interaction, Movement, XP gain, XP gain threshold |
 | Specific activities | One toggle per activity (all off) |
 | Extra delays | One extra delay per detector, in milliseconds |
 | Resource alerts | One toggle and one threshold per alert (all off) |
@@ -214,3 +235,4 @@ because it breaks the Watchdog alerts that match them.
 
 - Initial release: Inactive / Active / Still inactive signals, general and specific detectors, resource alerts, logout warnings, side panel, pause hotkey.
 - Added the **Damage taken** signal (`Activity Notifier: Damage taken`), with a minimum damage, a cooldown and an option to ignore poison and venom. This adds a new head and changes no existing one.
+- Added **Custom animation IDs**, so you can make your own animations count as activity, and a **Last animation** line in the side panel to find their IDs. No signal head changes.

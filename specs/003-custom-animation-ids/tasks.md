@@ -158,13 +158,13 @@ straight away (quickstart #1Ã¢â‚¬â€œ#5, #12, #14).
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T020 [P] Update `README.md`:
+- [X] T020 [P] Update `README.md`:
   - In the General detectors section, add a "Custom animation IDs" subsection: what it does, that listed animations count as `Animation`, the example `5216, 13149`, and how to find an ID with the side panel's Last animation row. Mention herbiboar as the motivating example.
   - In the Side panel section, describe the Last animation row.
   - In the Configuration reference, add "Custom animation IDs" to the General detectors row.
   - In the Changelog, add an entry for this feature.
-- [ ] T021 [P] Check `docs/ARCHITECTURE.md` and `docs/COMPONENTS.md`, if they are committed by then, for animation-detection descriptions that now need a line about custom IDs. Update only if they are tracked. Otherwise note it in `specs/docs-review-findings.md`.
-- [ ] T022 Final `./gradlew clean build`. Record the test count in Notes.
+- [X] T021 [P] Check `docs/ARCHITECTURE.md` and `docs/COMPONENTS.md`, if they are committed by then, for animation-detection descriptions that now need a line about custom IDs. Update only if they are tracked. Otherwise note it in `specs/docs-review-findings.md`.
+- [X] T022 Final `./gradlew clean build`. Record the test count in Notes.
 - [ ] T023 Hand off to the user for the full in-game pass of `quickstart.md`, following AGENTS.md "Testing": offer `./gradlew run`, link the Jagex Accounts wiki, list what to test, and wait for confirmation. Record the results in Notes, and update quickstart.md if any scenario turns out to be unreachable.
 - [ ] T024 Once the user confirms:
   - Mark the spec Implemented and record any deviations in Notes.
@@ -225,3 +225,5 @@ Developer B: T012 Ã¢â€ â€™ T013 Ã¢â€ â€™ T014   (parser ed
 - Mark tasks `[X]` as they complete, and record deviations here (CLAUDE.md "Keep the spec current").
 - **Deviation (T017)**: the panel status went on its own small grey row below `Last animation [ID]` (`None yet` / `Counts as <name>` / `Not counted`), because `Last animation: Animation (custom)` didn't fit next to the field at side-panel width. contracts/config.md, data-model.md and quickstart.md were updated to match. `CustomAnimations.NOT_COUNTED` is public so the panel can word the status.
 - **Deviation (T007, T018)**: the Javadoc work was stashed (T001), so the committed `observeAnimation` and `onAnimationChanged` had no Javadoc to update. Short inline comments citing 003 were added instead, to keep stash conflicts small.
+- **T021**: `docs/` is still untracked, so it wasn't edited. Section 4 of `specs/docs-review-findings.md` (also untracked) lists the 003 updates the docs and the stashed Javadoc need.
+- **T022 (2026-10-14)**: `./gradlew clean build` passes with 102 tests (86 before, plus 16 new in `CustomAnimationsTest`) and 0 failures.
