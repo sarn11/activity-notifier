@@ -59,7 +59,9 @@ import net.runelite.client.util.ImageUtil;
 @PluginDescriptor(
 	name = "Activity Notifier",
 	description = "Signals when you stop and resume activity, in a format the Watchdog plugin can react to",
-	tags = {"idle", "afk", "activity", "notification", "notifier", "watchdog", "skilling", "damage", "hit"}
+	tags = {"idle", "afk", "activity", "notification", "notifier", "watchdog", "skilling", "damage", "hit", "animation",
+		"inactive", "inactivity", "reminder", "alert", "warning", "low", "hp", "hitpoints", "prayer", "run", "energy", "spec",
+		"logout", "combat"}
 )
 public class ActivityNotifierPlugin extends Plugin
 {
